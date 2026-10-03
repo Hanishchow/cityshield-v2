@@ -471,6 +471,7 @@ export class CityShield {
     }
     /* a week of complaints across the zone's wards */
     const weights = [142, 118, 96, 71, 55, 43];
+    const batch: Complaint[] = [];
     const cats: CategoryKey[] = ['pothole', 'civic', 'light', 'water', 'signal', 'other'];
     for (let w = 0; w < WARDS.length; w++) {
       for (let n = 0; n < weights[w]; n++) {
@@ -480,15 +481,16 @@ export class CityShield {
         const resolved = today ? r() < 0.74 : r() < 0.86;
         const cat = cats[Math.floor(r() * cats.length)];
         const p = WARD_POINTS[ward];
-        const id = 'CS-' + (await this.repo.nextId('complaint'));
-        await this.repo.insertComplaint({
-          id, userId: null, category: cat, title: `${categoryOf(cat).title} – ${ward}`, description: '', address: `${ward}, Bengaluru`, area: ward,
+        batch.push({
+          id: `CS-H${w}${String(n).padStart(4, '0')}`, userId: null, category: cat, title: `${categoryOf(cat).title} – ${ward}`, description: '', address: `${ward}, Bengaluru`, area: ward,
           ...toLatLng([p[0] + (r() - 0.5) * 120, p[1] + (r() - 0.5) * 120]), status: resolved ? 'resolved' : 'progress', agency: categoryOf(cat).agency,
           photoUrl: null, art: null, createdAt: created, updatedAt: resolved ? Math.min(now, created + (1 + r() * 5) * 3_600_000) : created,
           timeline: [], crew: null,
         });
       }
     }
+    if (this.repo.insertComplaintsBulk) await this.repo.insertComplaintsBulk(batch);
+    else for (const c of batch) await this.repo.insertComplaint(c);
   }
 }
 

@@ -27,9 +27,9 @@ export default function CommandCity3D({ beacons, patrols, assignments }: { beaco
         <City3D palette={NIGHT} windows heightScale={1.1} />
         {beacons.map((b) => (
           <Beacon key={b.id} pt={b.pt} color={b.color} done={b.done} hovered={hover === b.id} onHover={(on) => setHover((h) => (on ? b.id : h === b.id ? null : h))}>
-            <div className="w-56 rounded-xl border border-white/10 bg-navy-900/95 px-3 py-2 text-[12px] text-white shadow-float">
+            <div className="w-56 rounded-xl border border-white/10 bg-navy-900/95 px-3 py-2 text-[13px] text-white shadow-float">
               <div className="font-bold">{b.label}</div>
-              <div className="mt-0.5 font-mono text-[11px] text-white/60">{b.id}</div>
+              <div className="mt-0.5 font-mono text-[12px] text-white/60">{b.id}</div>
             </div>
           </Beacon>
         ))}

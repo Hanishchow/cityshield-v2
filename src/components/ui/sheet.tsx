@@ -15,7 +15,7 @@ export function Sheet({ open, onOpenChange, title, children, wide, description }
   const desk = useIsDesktop();
   const head = (Title: typeof Dialog.Title) => (
     <div className="mb-3.5 flex items-center justify-between gap-3">
-      <Title className="text-[17px] font-extrabold tracking-[-0.01em]">{title}</Title>
+      <Title className="text-[18px] font-extrabold tracking-[-0.01em]">{title}</Title>
       <button onClick={() => onOpenChange(false)} aria-label="Close" className="grid size-8 place-items-center rounded-full bg-surface-3 text-fg-2 hover:text-fg"><X className="size-4" /></button>
     </div>
   );
@@ -29,7 +29,7 @@ export function Sheet({ open, onOpenChange, title, children, wide, description }
             className={cn('fixed top-1/2 left-1/2 z-50 max-h-[86vh] w-[calc(100vw-48px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl border border-line bg-surface p-6 shadow-float outline-none', wide ? 'max-w-[760px]' : 'max-w-[480px]')}
           >
             {head(Dialog.Title)}
-            {description && <Dialog.Description className="-mt-2 mb-3 text-[13px] text-fg-2">{description}</Dialog.Description>}
+            {description && <Dialog.Description className="-mt-2 mb-3 text-[14px] text-fg-2">{description}</Dialog.Description>}
             {children}
           </Dialog.Content>
         </Dialog.Portal>
@@ -44,7 +44,7 @@ export function Sheet({ open, onOpenChange, title, children, wide, description }
           <div className="mx-auto mt-2.5 mb-1 h-1.5 w-10 shrink-0 rounded-full bg-line-strong" />
           <div className="overflow-y-auto px-4 pt-2 pb-[calc(20px+env(safe-area-inset-bottom,0px))]">
             {head(Drawer.Title as unknown as typeof Dialog.Title)}
-            {description && <Drawer.Description className="-mt-2 mb-3 text-[13px] text-fg-2">{description}</Drawer.Description>}
+            {description && <Drawer.Description className="-mt-2 mb-3 text-[14px] text-fg-2">{description}</Drawer.Description>}
             {children}
           </div>
         </Drawer.Content>

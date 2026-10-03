@@ -10,9 +10,9 @@ export default function NotFound() {
   usePageMeta({ title: 'Page not found', side: null });
   return (
     <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-4 p-8 text-center">
-      <ShieldMark className="h-20 w-[72px]" />
-      <h1 className="text-[22px] font-extrabold">That page does not exist</h1>
-      <p className="max-w-[340px] text-[14px] text-fg-2">The link may be old. Help is still one tap away.</p>
+      <ShieldMark className="h-20" />
+      <h1 className="text-[24px] font-extrabold">That page does not exist</h1>
+      <p className="max-w-[340px] text-[15px] text-fg-2">The link may be old. Help is still one tap away.</p>
       <div className="flex gap-3">
         <Button onClick={() => nav('/')}>Go home</Button>
         <Button variant="danger" onClick={() => openSheet({ kind: 'dial', num: '112' })}><Phone />Call 112</Button>

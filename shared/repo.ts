@@ -47,6 +47,8 @@ export interface Repo {
   insertPing(incidentId: string, userId: string, at: number, loc: LatLng & { accuracyM: number | null }): Promise<void>;
 
   insertComplaint(c: Complaint): Promise<Complaint>;
+  /** Optional fast path for seeding many rows. */
+  insertComplaintsBulk?(cs: Complaint[]): Promise<void>;
   updateComplaint(id: string, patch: Partial<Complaint>): Promise<Complaint | null>;
   complaintById(id: string): Promise<Complaint | null>;
   complaints(f: ComplaintFilter): Promise<Complaint[]>;

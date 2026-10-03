@@ -87,7 +87,7 @@ function ReportForm() {
         <div role="radiogroup" aria-label="Category" className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 desk:flex-wrap">
           {CATEGORIES.map((c) => (
             <button key={c.key} role="radio" aria-checked={c.key === d.category} onClick={() => patch({ category: c.key })}
-              className={cn('inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-semibold transition-colors [&_svg]:size-4',
+              className={cn('inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[14px] font-semibold transition-colors [&_svg]:size-4',
                 c.key === d.category ? 'border-primary bg-primary text-white' : 'border-line bg-surface text-fg-2 hover:text-fg')}>
               <Icon name={c.icon} />{c.title}
             </button>
@@ -103,8 +103,8 @@ function ReportForm() {
         ) : (
           <label className="flex cursor-pointer flex-col items-center gap-1.5 rounded-card border-2 border-dashed border-line-strong bg-surface-2 px-4 py-7 text-center hover:border-primary hover:bg-primary-soft/40">
             <Camera className="size-7 text-primary" />
-            <span className="text-[14px] font-bold">Add a photo of the issue</span>
-            <span className="text-[12px] text-fg-3">Camera or gallery · helps the crew find it</span>
+            <span className="text-[15px] font-bold">Add a photo of the issue</span>
+            <span className="text-[13px] text-fg-3">Camera or gallery · helps the crew find it</span>
             <input type="file" accept="image/*" className="sr-only" onChange={async (e) => {
               const f = e.target.files?.[0]; if (!f) return;
               if (!f.type.startsWith('image/')) { appToast('Please choose an image file', 'alert', 'ambulance'); return; }
@@ -115,7 +115,7 @@ function ReportForm() {
       </Field>
       <Field label="Title" htmlFor="f-title"><Input id="f-title" maxLength={80} autoComplete="off" placeholder={PH[d.category]} value={d.title} onChange={(e) => patch({ title: e.target.value })} /></Field>
       <Field label={t('location')} htmlFor="f-loc" hint={
-        <button onClick={gps} disabled={locBusy} className="inline-flex items-center gap-1.5 self-start text-[13px] font-bold text-primary"><LocateFixed className="size-4" />{locBusy ? 'Getting a GPS fix…' : 'Use my current location'}</button>
+        <button onClick={gps} disabled={locBusy} className="inline-flex items-center gap-1.5 self-start text-[14px] font-bold text-primary"><LocateFixed className="size-4" />{locBusy ? 'Getting a GPS fix…' : 'Use my current location'}</button>
       }>
         <div className="relative"><MapPin className="pointer-events-none absolute top-1/2 left-3.5 size-5 -translate-y-1/2 text-fg-3" />
           <Input ref={locRef} id="f-loc" className="pl-11" invalid={bad} autoComplete="off" value={d.address} onChange={(e) => { setBad(false); patch({ address: e.target.value, lat: null, lng: null }); }} />
@@ -124,7 +124,7 @@ function ReportForm() {
       <Field label={<>Description <span className="font-semibold text-fg-3">(optional)</span></>} htmlFor="f-desc">
         <Textarea id="f-desc" maxLength={500} placeholder="What is the problem? Any landmark nearby?" value={d.description} onChange={(e) => patch({ description: e.target.value })} />
       </Field>
-      <div className="flex items-center gap-2.5 rounded-xl border border-line bg-surface-2 px-3.5 py-3 text-[13px] text-fg-2">
+      <div className="flex items-center gap-2.5 rounded-xl border border-line bg-surface-2 px-3.5 py-3 text-[14px] text-fg-2">
         <ShieldCheck className="size-4 shrink-0 text-success" /><span>Will be routed automatically to <b className="text-fg">{k.agency}</b></span>
       </div>
       <Button size="lg" onClick={submit} disabled={create.isPending}><Send />{create.isPending ? 'Submitting…' : t('submit')}</Button>
@@ -147,7 +147,7 @@ export default function Report() {
         <Card>
           <CardHeader title="What happens next" />
           <ol className="flex flex-col gap-4 px-5 pt-2 pb-5">
-            {steps.map(([b, p], i) => <li key={b} className="flex gap-3.5"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-[13px] font-extrabold text-primary">{i + 1}</span><div><b className="text-[14px]">{b}</b><p className="text-[13px] text-fg-2">{p}</p></div></li>)}
+            {steps.map(([b, p], i) => <li key={b} className="flex gap-3.5"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-[14px] font-extrabold text-primary">{i + 1}</span><div><b className="text-[15px]">{b}</b><p className="text-[14px] text-fg-2">{p}</p></div></li>)}
           </ol>
         </Card>
         <Card className="overflow-hidden">

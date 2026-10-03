@@ -245,11 +245,11 @@ export function CityMap2D(p: MapProps) {
         );
       })()}
       {p.live !== false && (
-        <span className="absolute top-3 left-3 z-[2] inline-flex items-center gap-1.5 rounded-full bg-surface/95 px-2.5 py-1 text-[10.5px] font-extrabold tracking-[0.08em] text-sos shadow-soft">
+        <span className="absolute top-3 left-3 z-[2] inline-flex items-center gap-1.5 rounded-full bg-surface/95 px-2.5 py-1 text-[11.5px] font-extrabold tracking-[0.08em] text-sos shadow-soft">
           <i className="size-1.5 animate-live rounded-full bg-sos" />LIVE
         </span>
       )}
-      <span className="absolute right-2.5 bottom-2.5 z-[2] rounded-md bg-surface/90 px-2 py-0.5 text-[10.5px] font-semibold text-fg-3">Simulated</span>
+      <span className="absolute right-2.5 bottom-2.5 z-[2] rounded-md bg-surface/90 px-2 py-0.5 text-[11.5px] font-semibold text-fg-3">Simulated</span>
       {p.children}
     </div>
   );

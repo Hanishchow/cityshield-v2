@@ -30,7 +30,7 @@ export function Segmented<T extends string>({ value, onChange, options, classNam
         <ToggleGroup.Item
           key={o.value} value={o.value}
           className={cn(
-            'inline-flex h-9 items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 text-[13px] font-semibold text-fg-2 transition-colors hover:text-fg [&_svg]:size-4',
+            'inline-flex h-9 items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 text-[14px] font-semibold text-fg-2 transition-colors hover:text-fg [&_svg]:size-4',
             tone === 'primary' ? 'data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-white' : 'data-[state=on]:border-navy-900 data-[state=on]:bg-navy-900 data-[state=on]:text-white dark:data-[state=on]:border-navy-700 dark:data-[state=on]:bg-navy-700',
           )}
         >
@@ -45,7 +45,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
   <input
     ref={ref}
     aria-invalid={invalid || undefined}
-    className={cn('h-12 w-full rounded-xl border border-line-strong bg-surface px-3.5 text-[14.5px] text-fg outline-none transition-[border,box-shadow] placeholder:text-fg-3 focus:border-primary focus:shadow-[0_0_0_3px_color-mix(in_oklab,var(--primary)_20%,transparent)] aria-[invalid]:border-sos', className)}
+    className={cn('h-12 w-full rounded-xl border border-line-strong bg-surface px-3.5 text-[15.5px] text-fg outline-none transition-[border,box-shadow] placeholder:text-fg-3 focus:border-primary focus:shadow-[0_0_0_3px_color-mix(in_oklab,var(--primary)_20%,transparent)] aria-[invalid]:border-sos', className)}
     {...p}
   />
 ));
@@ -54,7 +54,7 @@ Input.displayName = 'Input';
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(({ className, ...p }, ref) => (
   <textarea
     ref={ref}
-    className={cn('min-h-[104px] w-full resize-y rounded-xl border border-line-strong bg-surface px-3.5 py-3 text-[14.5px] text-fg outline-none transition-[border,box-shadow] placeholder:text-fg-3 focus:border-primary focus:shadow-[0_0_0_3px_color-mix(in_oklab,var(--primary)_20%,transparent)]', className)}
+    className={cn('min-h-[104px] w-full resize-y rounded-xl border border-line-strong bg-surface px-3.5 py-3 text-[15.5px] text-fg outline-none transition-[border,box-shadow] placeholder:text-fg-3 focus:border-primary focus:shadow-[0_0_0_3px_color-mix(in_oklab,var(--primary)_20%,transparent)]', className)}
     {...p}
   />
 ));
@@ -63,7 +63,7 @@ Textarea.displayName = 'Textarea';
 export function Field({ label, htmlFor, children, hint }: { label: ReactNode; htmlFor?: string; children: ReactNode; hint?: ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      {htmlFor ? <label htmlFor={htmlFor} className="text-[13px] font-bold">{label}</label> : <span className="text-[13px] font-bold">{label}</span>}
+      {htmlFor ? <label htmlFor={htmlFor} className="text-[14px] font-bold">{label}</label> : <span className="text-[14px] font-bold">{label}</span>}
       {children}
       {hint}
     </div>
@@ -76,12 +76,12 @@ export function Accordion({ items }: { items: { q: string; a: ReactNode }[] }) {
       {items.map((it, i) => (
         <RAccordion.Item key={i} value={String(i)}>
           <RAccordion.Header>
-            <RAccordion.Trigger className="group flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left text-[14px] font-semibold sm:px-5">
+            <RAccordion.Trigger className="group flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left text-[15px] font-semibold sm:px-5">
               {it.q}
               <ChevronDown className="size-4 shrink-0 text-fg-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
             </RAccordion.Trigger>
           </RAccordion.Header>
-          <RAccordion.Content className="overflow-hidden px-4 pb-4 text-[13.5px] text-fg-2 data-[state=closed]:hidden sm:px-5">{it.a}</RAccordion.Content>
+          <RAccordion.Content className="overflow-hidden px-4 pb-4 text-[14.5px] text-fg-2 data-[state=closed]:hidden sm:px-5">{it.a}</RAccordion.Content>
         </RAccordion.Item>
       ))}
     </RAccordion.Root>

@@ -11,7 +11,7 @@ const TONES = {
 
 export function Chip({ tone = 'gray', children, className }: { tone?: keyof typeof TONES; children: ReactNode; className?: string }) {
   return (
-    <span className={cn('inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-[3px] text-[11.5px] font-bold [&_svg]:size-3', TONES[tone], className)}>
+    <span className={cn('inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-[3px] text-[12.5px] font-bold [&_svg]:size-3', TONES[tone], className)}>
       {children}
     </span>
   );
@@ -20,7 +20,7 @@ export function Chip({ tone = 'gray', children, className }: { tone?: keyof type
 /** The "LIVE" pill used on maps and live cards. */
 export function LivePill({ className, label = 'LIVE' }: { className?: string; label?: string }) {
   return (
-    <span className={cn('inline-flex items-center gap-1.5 rounded-full bg-sos-soft px-2.5 py-1 text-[10.5px] font-extrabold tracking-[0.08em] text-sos', className)}>
+    <span className={cn('inline-flex items-center gap-1.5 rounded-full bg-sos-soft px-2.5 py-1 text-[11.5px] font-extrabold tracking-[0.08em] text-sos', className)}>
       <i className="size-1.5 animate-live rounded-full bg-sos" />
       {label}
     </span>
@@ -28,5 +28,5 @@ export function LivePill({ className, label = 'LIVE' }: { className?: string; la
 }
 
 export function DemoTag({ children, className }: { children: ReactNode; className?: string }) {
-  return <span className={cn('text-[11.5px] font-semibold text-fg-3', className)}>{children}</span>;
+  return <span className={cn('text-[12.5px] font-semibold text-fg-3', className)}>{children}</span>;
 }

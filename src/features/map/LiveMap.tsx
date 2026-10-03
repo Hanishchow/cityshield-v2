@@ -30,10 +30,10 @@ export function LiveMap({ toggle = true, ...p }: MapProps & { toggle?: boolean }
             <div className="absolute inset-0" role="img" aria-label={(p.aria ?? 'Live map') + ' (3D)'}>
               <LiveMap3D {...p} />
             </div>
-            <span className="pointer-events-none absolute top-3 left-3 z-[2] inline-flex items-center gap-1.5 rounded-full bg-surface/95 px-2.5 py-1 text-[10.5px] font-extrabold tracking-[0.08em] text-sos shadow-soft">
+            <span className="pointer-events-none absolute top-3 left-3 z-[2] inline-flex items-center gap-1.5 rounded-full bg-surface/95 px-2.5 py-1 text-[11.5px] font-extrabold tracking-[0.08em] text-sos shadow-soft">
               <i className="size-1.5 animate-live rounded-full bg-sos" />LIVE
             </span>
-            <span className="pointer-events-none absolute right-2.5 bottom-2.5 z-[2] rounded-md bg-surface/90 px-2 py-0.5 text-[10.5px] font-semibold text-fg-3">Simulated · drag to orbit</span>
+            <span className="pointer-events-none absolute right-2.5 bottom-2.5 z-[2] rounded-md bg-surface/90 px-2 py-0.5 text-[11.5px] font-semibold text-fg-3">Simulated · drag to orbit</span>
           </Suspense>
         </Fallback>
       ) : (
@@ -45,7 +45,7 @@ export function LiveMap({ toggle = true, ...p }: MapProps & { toggle?: boolean }
             const on = (m === '3d') === use3D;
             return (
               <button key={m} onClick={() => set({ mapMode: m })} aria-pressed={on}
-                className={cn('inline-flex h-7 items-center gap-1 rounded-[9px] px-2.5 text-[11.5px] font-bold transition-colors', on ? 'bg-navy-900 text-white dark:bg-primary' : 'text-fg-2 hover:text-fg')}>
+                className={cn('inline-flex h-7 items-center gap-1 rounded-[9px] px-2.5 text-[12.5px] font-bold transition-colors', on ? 'bg-navy-900 text-white dark:bg-primary' : 'text-fg-2 hover:text-fg')}>
                 {m === '3d' ? <Box className="size-3.5" /> : <MapIcon className="size-3.5" />}{m.toUpperCase()}
               </button>
             );

@@ -1,15 +1,14 @@
 /**
  * Home hero: a low-poly Bengaluru skyline at the current time of day — a
  * Vidhana Soudha-style dome flanked by towers, lit windows and stars after
- * dusk — with soft pointer parallax and the 3D City Shield emblem floating
- * above it. Rendering pauses when the hero scrolls out of view.
+ * dusk — with soft pointer parallax. The logo is shown flat (2D) on top of
+ * this scene by the page. Rendering pauses when the hero scrolls out of view.
  */
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment, Lightformer, Stars } from '@react-three/drei';
+import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { rng } from '@shared/city.ts';
-import { Emblem } from './Emblem3D.tsx';
 import { useInView } from '@/lib/useInView.ts';
 
 export type DayPart = 'morning' | 'afternoon' | 'evening' | 'night';
@@ -17,10 +16,10 @@ export function dayPart(h = new Date().getHours()): DayPart {
   return h >= 5 && h < 12 ? 'morning' : h >= 12 && h < 17 ? 'afternoon' : h >= 17 && h < 20 ? 'evening' : 'night';
 }
 const SKY: Record<DayPart, { top: string; horizon: string; sun: string; sunI: number; amb: number; windows: number; stars: boolean; sunPos: [number, number, number] }> = {
-  morning: { top: '#0B1A44', horizon: '#E9A981', sun: '#FFD7A8', sunI: 1.5, amb: 0.65, windows: 0.15, stars: false, sunPos: [-6, 3, 4] },
-  afternoon: { top: '#0C1E52', horizon: '#6FA3E6', sun: '#FFFFFF', sunI: 1.9, amb: 0.8, windows: 0.05, stars: false, sunPos: [2, 8, 5] },
-  evening: { top: '#0A1538', horizon: '#C9714E', sun: '#FFB27A', sunI: 1.1, amb: 0.5, windows: 0.75, stars: true, sunPos: [6, 2, 3] },
-  night: { top: '#050B1E', horizon: '#1B2F66', sun: '#8FA8FF', sunI: 0.45, amb: 0.35, windows: 1, stars: true, sunPos: [3, 6, 4] },
+  morning: { top: '#1D4189', horizon: '#F2B990', sun: '#FFD7A8', sunI: 1.5, amb: 0.65, windows: 0.15, stars: false, sunPos: [-6, 3, 4] },
+  afternoon: { top: '#1F4A9C', horizon: '#8CC0F5', sun: '#FFFFFF', sunI: 1.9, amb: 0.8, windows: 0.05, stars: false, sunPos: [2, 8, 5] },
+  evening: { top: '#1A367A', horizon: '#E08A63', sun: '#FFB27A', sunI: 1.1, amb: 0.5, windows: 0.75, stars: true, sunPos: [6, 2, 3] },
+  night: { top: '#0F2358', horizon: '#2E4F9C', sun: '#8FA8FF', sunI: 0.45, amb: 0.35, windows: 1, stars: true, sunPos: [3, 6, 4] },
 };
 
 function SkyDome({ top, horizon }: { top: string; horizon: string }) {
@@ -64,13 +63,14 @@ function Legislature({ windows }: { windows: number }) {
 }
 
 function Towers({ windows }: { windows: number }) {
-  const n = 46;
+  const n = 38;
   const body = useRef<THREE.InstancedMesh>(null), lit = useRef<THREE.InstancedMesh>(null);
   const data = useMemo(() => {
     const r = rng(2026), out: { x: number; z: number; w: number; d: number; h: number }[] = [];
     for (let i = 0; i < n; i++) {
-      const side = i % 2 ? 1 : -1, x = side * (2.0 + r() * 6.5), z = -1.2 - r() * 4.5;
-      out.push({ x, z, w: 0.35 + r() * 0.6, d: 0.35 + r() * 0.6, h: 0.6 + r() * (Math.abs(x) > 4 ? 2.2 : 3.6) + (r() > 0.9 ? 1.6 : 0) });
+      const side = i % 2 ? 1 : -1, x = side * (3.2 + r() * 10), z = -4 - r() * 8;
+      const far = Math.abs(x) > 6;
+      out.push({ x, z, w: 0.45 + r() * 0.7, d: 0.45 + r() * 0.7, h: 0.8 + r() * (far ? 2.2 : 2.9) + (r() > 0.9 ? 1.4 : 0) });
     }
     return out;
   }, []);
@@ -79,7 +79,7 @@ function Towers({ windows }: { windows: number }) {
     data.forEach((b, i) => {
       o.position.set(b.x, b.h / 2, b.z); o.scale.set(b.w, b.h, b.d); o.updateMatrix();
       body.current?.setMatrixAt(i, o.matrix);
-      body.current?.setColorAt(i, c.setHSL(0.62, 0.32, 0.18 + (b.z + 6) * 0.035));
+      body.current?.setColorAt(i, c.setHSL(0.61, 0.38, 0.32 + (b.z + 9) * 0.03));
       o.position.set(b.x, b.h * 0.55, b.z + b.d / 2 + 0.003); o.scale.set(b.w * 0.8, b.h * 0.8, 1); o.updateMatrix();
       lit.current?.setMatrixAt(i, o.matrix);
     });
@@ -105,35 +105,28 @@ function windowTexture() {
 
 function Parallax() {
   useFrame(({ camera, pointer }, dt) => {
-    camera.position.x += (pointer.x * 0.6 - camera.position.x) * Math.min(1, dt * 2);
-    camera.position.y += (2.1 + pointer.y * 0.25 - camera.position.y) * Math.min(1, dt * 2);
+    camera.position.x += (pointer.x * 0.9 - camera.position.x) * Math.min(1, dt * 2);
+    camera.position.y += (2.2 + pointer.y * 0.3 - camera.position.y) * Math.min(1, dt * 2);
     camera.lookAt(0, 1.4, -1);
   });
   return null;
 }
 
-export default function HeroSkyline({ part = dayPart(), emblem = true, compact = false }: { part?: DayPart; emblem?: boolean; compact?: boolean }) {
+export default function HeroSkyline({ part = dayPart(), compact = false }: { part?: DayPart; compact?: boolean }) {
   const { ref, inView } = useInView<HTMLDivElement>();
   const s = SKY[part];
   return (
     <div ref={ref} className="absolute inset-0">
-      <Canvas dpr={[1, 1.5]} frameloop={inView ? 'always' : 'never'} shadows camera={{ fov: compact ? 50 : 42, position: [0, 2.1, 7.4] }} gl={{ antialias: true, stencil: true, alpha: false }}>
+      <Canvas dpr={[1, 1.5]} frameloop={inView ? 'always' : 'never'} shadows camera={{ fov: compact ? 56 : 46, position: [0, 2.2, compact ? 9.2 : 8.4] }} gl={{ antialias: true, alpha: false }}>
         <SkyDome top={s.top} horizon={s.horizon} />
         {s.stars && <Stars radius={40} depth={10} count={900} factor={2.4} saturation={0} fade speed={0.4} />}
         <hemisphereLight args={[s.horizon, '#0B1533', s.amb]} />
         <directionalLight position={s.sunPos} intensity={s.sunI} color={s.sun} castShadow shadow-mapSize={[1024, 1024]} />
         <pointLight position={[3.2, 3.4, 2]} intensity={6} distance={6} color="#6FA8FF" />
-        <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[60, 30]} /><meshStandardMaterial color="#0A1433" roughness={1} /></mesh>
+        <mesh rotation-x={-Math.PI / 2} receiveShadow><planeGeometry args={[60, 30]} /><meshStandardMaterial color="#16306A" roughness={1} /></mesh>
         <Legislature windows={s.windows} />
         <Towers windows={s.windows} />
-        {/* Local studio lighting for the emblem's metal and enamel — no HDR download. */}
-        <Environment resolution={64} frames={1}>
-          <Lightformer intensity={2.2} position={[0, 4, 4]} scale={[8, 2, 1]} color="#ffffff" />
-          <Lightformer intensity={1.2} position={[-5, 1, 3]} scale={[3, 6, 1]} color="#9CC6F7" />
-          <Lightformer intensity={0.8} position={[5, -1, 2]} scale={[3, 4, 1]} color={s.horizon} />
-        </Environment>
-        {emblem && <group position={compact ? [1.15, 3.35, 1.6] : [3.25, 2.55, 0.8]}><Emblem scale={compact ? 0.0105 : 0.016} /></group>}
-        <fog attach="fog" args={[s.top, 9, 22]} />
+        <fog attach="fog" args={[s.top, 12, 30]} />
         <Parallax />
       </Canvas>
     </div>

@@ -81,7 +81,7 @@ export function MovingVehicle({ a, label = true, onPos }: { a: Assignment; label
       <VehicleBody color={SERVICES[a.kind].color} kind={a.kind} />
       {label && (
         <Html position={[0, 0.42, 0]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-          <div className="whitespace-nowrap rounded-full px-3 py-1 text-[12px] font-bold text-white shadow-float" style={{ background: SERVICES[a.kind].pill }}>
+          <div className="whitespace-nowrap rounded-full px-3 py-1 text-[13px] font-bold text-white shadow-float" style={{ background: SERVICES[a.kind].pill }}>
             <span ref={txt} />
           </div>
         </Html>

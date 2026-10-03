@@ -20,33 +20,33 @@
  *    police indigo, ambulance rose, fire orange, civic emerald.
  */
 :root {
-  --navy-950: #050b1e;
-  --navy-900: #0b1533;
-  --navy-850: #0f1c40;
-  --navy-800: #15244f;
-  --navy-700: #1d3366;
-  --ink: #1a2b5f;
-  --cobalt: #2a56c6;
-  --cobalt-hover: #2348a8;
-  --sky: #5b9bea;
+  --navy-950: #102150;
+  --navy-900: #18306E;
+  --navy-850: #1D3A82;
+  --navy-800: #234594;
+  --navy-700: #2C55AE;
+  --ink: #1E3A7E;
+  --cobalt: #2F6FE4;
+  --cobalt-hover: #245CCB;
+  --sky: #7AB3F5;
   --silver: #c9d1dc;
   --steel: #8a95a8;
 
-  --bg: #f3f5f9;
+  --bg: #F4F7FC;
   --surface: #ffffff;
-  --surface-2: #f6f8fb;
-  --surface-3: #eef1f6;
-  --text: #0d1730;
-  --text-2: #4a5670;
+  --surface-2: #F7F9FD;
+  --surface-3: #EDF2FA;
+  --text: #0F1B36;
+  --text-2: #4A5875;
   --text-3: #7c869a;
-  --border: #e2e7ef;
+  --border: #E1E8F3;
   --border-strong: #cfd6e2;
 
   --primary: var(--cobalt);
   --primary-hover: var(--cobalt-hover);
-  --primary-soft: #e9effc;
+  --primary-soft: #E7EFFD;
   --primary-fg: #ffffff;
-  --focus: #3b7be0;
+  --focus: #3F82EE;
 
   --sos: #dc2f35;
   --sos-deep: #a8151c;
@@ -84,19 +84,19 @@
 }
 
 [data-theme="dark"] {
-  --bg: #060c1f;
-  --surface: #0d1631;
-  --surface-2: #111c3b;
-  --surface-3: #16234a;
-  --text: #e8edf7;
-  --text-2: #a7b2c7;
-  --text-3: #77839b;
-  --border: #1c2849;
-  --border-strong: #273560;
+  --bg: #0F1D44;
+  --surface: #162857;
+  --surface-2: #1B2F63;
+  --surface-3: #22386F;
+  --text: #EEF3FC;
+  --text-2: #B6C3DC;
+  --text-3: #8797B6;
+  --border: #2A4078;
+  --border-strong: #35508F;
 
-  --primary: #5b86f0;
-  --primary-hover: #7399f3;
-  --primary-soft: #16255a;
+  --primary: #6C9DF7;
+  --primary-hover: #86AFF9;
+  --primary-soft: #223F82;
   --focus: #7aa9f2;
 
   --sos: #f0484e;
@@ -117,15 +117,15 @@
   --crew: #f0a33b;
   --crew-soft: #37280d;
 
-  --map-land: #111d3c;
-  --map-block: #18264b;
-  --map-road: #283a66;
-  --map-casing: #0b1530;
-  --map-park: #13372d;
-  --map-tree: #1a4838;
-  --map-water: #143a63;
-  --map-label: #8b98b6;
-  --map-halo: #111d3c;
+  --map-land: #182C5E;
+  --map-block: #213A74;
+  --map-road: #34508F;
+  --map-casing: #142650;
+  --map-park: #1B4A45;
+  --map-tree: #22604F;
+  --map-water: #1E5193;
+  --map-label: #A9BADB;
+  --map-halo: #182C5E;
 
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px -4px rgb(0 0 0 / 0.35);
@@ -134,8 +134,9 @@
 }
 
 @theme inline {
-  --font-sans: "Plus Jakarta Sans Variable", "Noto Sans Kannada Variable", "Noto Sans Devanagari Variable",
+  --font-sans: "Inter Variable", "Noto Sans Kannada Variable", "Noto Sans Devanagari Variable",
     "Noto Sans Tamil Variable", "Noto Sans Telugu Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Montserrat Variable", "Inter Variable", system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-navy-950: var(--navy-950);
@@ -198,6 +199,10 @@
   0% { transform: scale(0.85); opacity: 0.55; }
   100% { transform: scale(1.65); opacity: 0; }
 }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
 @keyframes live {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.35; }
@@ -213,16 +218,18 @@
   body {
     margin: 0;
     font-family: var(--font-sans);
-    font-size: 14px;
-    line-height: 1.45;
+    font-size: 15px;
+    line-height: 1.5;
     color: var(--text);
     background: var(--bg);
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
-    font-feature-settings: "cv11", "ss01";
+    font-feature-settings: "cv11", "ss01", "ss03";
+    letter-spacing: -0.006em;
   }
   button { cursor: pointer; }
   :focus-visible { outline: 2.5px solid var(--focus); outline-offset: 2px; }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.015em; }
   ::selection { background: color-mix(in oklab, var(--primary) 25%, transparent); }
 }
 

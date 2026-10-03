@@ -70,15 +70,15 @@ export default function Command() {
           <div className="absolute top-3 right-3 z-[3] flex rounded-xl border border-line bg-surface/95 p-0.5 shadow-soft" role="group" aria-label="Map view">
             {(['2d', '3d'] as const).map((m) => (
               <button key={m} onClick={() => set({ mapMode: m })} aria-pressed={(m === '3d') === use3D}
-                className={cn('inline-flex h-7 items-center gap-1 rounded-[9px] px-2.5 text-[11.5px] font-bold', (m === '3d') === use3D ? 'bg-navy-900 text-white dark:bg-primary' : 'text-fg-2')}>
+                className={cn('inline-flex h-7 items-center gap-1 rounded-[9px] px-2.5 text-[12.5px] font-bold', (m === '3d') === use3D ? 'bg-navy-900 text-white dark:bg-primary' : 'text-fg-2')}>
                 {m === '3d' ? <Box className="size-3.5" /> : <MapIcon className="size-3.5" />}{m.toUpperCase()}
               </button>
             ))}
           </div>
         )}
-        {use3D && <span className="pointer-events-none absolute bottom-2.5 left-3 z-[2] rounded-md bg-black/40 px-2 py-0.5 text-[10.5px] font-semibold text-white/80">Hover a beacon for details · drag to orbit</span>}
+        {use3D && <span className="pointer-events-none absolute bottom-2.5 left-3 z-[2] rounded-md bg-black/40 px-2 py-0.5 text-[11.5px] font-semibold text-white/80">Hover a beacon for details · drag to orbit</span>}
       </div>
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5 border-t border-line px-4 py-3 text-[12px] font-semibold text-fg-2">
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5 border-t border-line px-4 py-3 text-[13px] font-semibold text-fg-2">
         {([['Medical', COLOR.medical], ['Police', COLOR.police], ['Fire', COLOR.fire], [`${CIVIC.short} civic`, COLOR.civic], ['Flooding', COLOR.flood], ['Resolved', COLOR.done]] as const).map(([l, c]) => (
           <span key={l} className="inline-flex items-center gap-1.5"><i className="size-2.5 rounded-full" style={{ background: c }} />{l}</span>
         ))}
@@ -95,17 +95,17 @@ export default function Command() {
           <div key={i.id} className="flex items-start gap-3 border-t border-line px-4 py-3 first-of-type:border-t-0 sm:px-5">
             <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full" style={{ background: incColor(i) + '1F', color: incColor(i) }}><Icon name="alert" className="size-4" /></span>
             <div className="min-w-0 flex-1">
-              <div className="text-[14px] font-bold">{i.title}</div>
-              <div className="text-[12.5px] text-fg-2">{i.address} · <span className="font-mono">{i.id}</span></div>
+              <div className="text-[15px] font-bold">{i.title}</div>
+              <div className="text-[13.5px] text-fg-2">{i.address} · <span className="font-mono">{i.id}</span></div>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {i.agencies.slice(0, 2).map((g) => <Chip key={g.agency}>{g.agency.replace(/ \(108\)$/, '')}</Chip>)}
                 <Chip tone={tone}>{st}</Chip>
               </div>
             </div>
             <div className="flex shrink-0 flex-col items-end gap-1.5">
-              <span className="text-[11.5px] text-fg-3">{timeAgo(i.createdAt)}</span>
+              <span className="text-[12.5px] text-fg-3">{timeAgo(i.createdAt)}</span>
               {i.status !== 'resolved' && i.status !== 'cancelled' && (
-                <button onClick={() => resolve(i)} className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11.5px] font-bold text-success hover:bg-success-soft"><CheckCheck className="size-3.5" />Resolve</button>
+                <button onClick={() => resolve(i)} className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[12.5px] font-bold text-success hover:bg-success-soft"><CheckCheck className="size-3.5" />Resolve</button>
               )}
             </div>
           </div>
@@ -118,7 +118,7 @@ export default function Command() {
     <Card className="pb-3">
       <CardHeader title="Complaints this week by area" />
       {W.map((w) => (
-        <div key={w.area} className="grid grid-cols-[110px_1fr_44px] items-center gap-3 px-5 py-1.5 text-[13px]">
+        <div key={w.area} className="grid grid-cols-[110px_1fr_44px] items-center gap-3 px-5 py-1.5 text-[14px]">
           <span className="truncate font-semibold text-fg-2">{w.area}</span>
           <div className="h-2 overflow-hidden rounded-full bg-surface-3"><i className="block h-full rounded-full bg-primary transition-[width] duration-500" style={{ width: `${Math.round((w.count / max) * 100)}%` }} /></div>
           <b className="text-right tabular">{w.count}</b>

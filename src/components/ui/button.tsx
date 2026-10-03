@@ -20,9 +20,9 @@ export const buttonVariants = cva(
         link: 'h-auto rounded-md px-0.5 py-0.5 text-primary hover:underline',
       },
       size: {
-        sm: 'h-9 px-3.5 text-[13px]',
-        md: 'h-11 px-4 text-[14px]',
-        lg: 'h-12 px-5 text-[15px]',
+        sm: 'h-9 px-3.5 text-[14px]',
+        md: 'h-11 px-4 text-[15px]',
+        lg: 'h-12 px-5 text-[16px]',
         icon: 'size-10 rounded-xl p-0',
       },
     },

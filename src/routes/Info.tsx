@@ -65,9 +65,9 @@ export function About() {
     <Page title={t('about')} sub={t('tagline')}>
       <div className="rounded-[22px] bg-[linear-gradient(120deg,var(--navy-900),var(--navy-700))] p-5"><Logo tagline={t('tagline')} /></div>
       <Card className="p-4 sm:p-5">
-        <p className="text-[14px] text-fg-2">City Shield brings emergency response and civic complaints for Bengaluru into one app — so citizens get help faster and agencies share one live picture of the city.</p>
+        <p className="text-[15px] text-fg-2">City Shield brings emergency response and civic complaints for Bengaluru into one app — so citizens get help faster and agencies share one live picture of the city.</p>
         <ul className="mt-4 flex flex-col gap-3.5">
-          {F.map(([i, b, p]) => <li key={b} className="flex gap-3"><IconChip icon={i} tone="blue" round size="sm" /><div><b className="text-[14px]">{b}</b><p className="text-[13px] text-fg-2">{p}</p></div></li>)}
+          {F.map(([i, b, p]) => <li key={b} className="flex gap-3"><IconChip icon={i} tone="blue" round size="sm" /><div><b className="text-[15px]">{b}</b><p className="text-[14px] text-fg-2">{p}</p></div></li>)}
         </ul>
       </Card>
       <SectionHeader title="Built to connect" />
@@ -75,7 +75,7 @@ export function About() {
         {AG.map(([k, n, s]) => <Row as="div" key={k}><IconChip icon={SERVICE_ICON[k]} tone={(SERVICE_KEYS as readonly string[]).includes(k) ? k : 'blue'} /><RowText title={n} sub={s} /></Row>)}
       </Card>
       <Notice><b>Prototype.</b> Responder positions, officer details, camera feed and command-centre figures are simulated for demonstration. Integrations with agency systems are proposed, not live.</Notice>
-      <p className="text-center text-[12px] text-fg-3"><Icon name="shieldCheck" className="mr-1 inline size-3.5" />Version 1.0 · October 2026</p>
+      <p className="text-center text-[13px] text-fg-3"><Icon name="shieldCheck" className="mr-1 inline size-3.5" />Version 1.0 · October 2026</p>
     </Page>
   );
 }

@@ -43,9 +43,9 @@ class RouteBoundary extends Component<{ children: ReactNode }, { error: Error | 
     if (!this.state.error) return this.props.children;
     return (
       <div className="flex min-h-[60dvh] flex-col items-center justify-center gap-4 p-8 text-center">
-        <ShieldMark className="h-16 w-14" />
-        <h1 className="text-[20px] font-extrabold">Something went wrong on this screen</h1>
-        <p className="max-w-[360px] text-[13.5px] text-fg-2">{this.state.error.message}</p>
+        <ShieldMark className="h-16" />
+        <h1 className="text-[22px] font-extrabold">Something went wrong on this screen</h1>
+        <p className="max-w-[360px] text-[14.5px] text-fg-2">{this.state.error.message}</p>
         <div className="flex gap-3">
           <button className="rounded-xl bg-primary px-4 py-2.5 font-bold text-white" onClick={() => { this.setState({ error: null }); location.assign(import.meta.env.BASE_URL); }}>Reload</button>
           <a className="inline-flex items-center gap-2 rounded-xl bg-sos px-4 py-2.5 font-bold text-white" href="tel:112"><Phone className="size-4" />Call 112</a>
@@ -59,9 +59,9 @@ function Splash() {
   return (
     <div className="grid min-h-dvh place-items-center bg-[radial-gradient(120%_80%_at_50%_30%,var(--navy-800),var(--navy-950))]">
       <div className="flex flex-col items-center gap-5">
-        <ShieldMark className="h-24 w-[86px] animate-[pulse_2s_ease-in-out_infinite]" glow />
-        <div className="text-[19px] font-extrabold tracking-[0.12em] text-white">CITY SHIELD</div>
-        <a href="tel:112" className="mt-6 rounded-full bg-sos/90 px-4 py-1.5 text-[12.5px] font-bold text-white">Emergency? Call 112</a>
+        <ShieldMark className="h-24 animate-[pulse_2s_ease-in-out_infinite]" glow />
+        <div className="text-[21px] font-extrabold tracking-[0.12em] text-white">CITY SHIELD</div>
+        <a href="tel:112" className="mt-6 rounded-full bg-sos/90 px-4 py-1.5 text-[13.5px] font-bold text-white">Emergency? Call 112</a>
       </div>
     </div>
   );
@@ -76,7 +76,7 @@ function Sync() {
     const apply = () => {
       const r = resolvedTheme(theme);
       document.documentElement.setAttribute('data-theme', r);
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', r === 'dark' ? '#050B1E' : '#0B1533');
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', r === 'dark' ? '#0F1D44' : '#18306E');
     };
     apply();
     const m = matchMedia('(prefers-color-scheme: dark)');

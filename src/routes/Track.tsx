@@ -33,11 +33,11 @@ export default function Track() {
             <Row key={k} chevron onClick={() => nav(`/service/${k}`)}>
               <IconChip icon={SERVICE_ICON[k]} tone={k} />
               <div className="min-w-0 flex-1">
-                <div className="text-[14px] font-bold">{SERVICES[k].vehicle}</div>
-                <Status a={a} className="text-[12.5px] text-fg-2" />
+                <div className="text-[15px] font-bold">{SERVICES[k].vehicle}</div>
+                <Status a={a} className="text-[13.5px] text-fg-2" />
                 <Fill a={a} className="mt-2" />
               </div>
-              <Eta a={a} className="text-[13.5px] font-extrabold tabular" />
+              <Eta a={a} className="text-[14.5px] font-extrabold tabular" />
             </Row>
           );
         })}

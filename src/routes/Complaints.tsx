@@ -27,8 +27,8 @@ export function CategoryGrid() {
       {CATEGORIES.map((k) => (
         <button key={k.key} onClick={() => nav(`/complaints/new/${k.key}`)} className="flex flex-col items-center gap-2 rounded-card border border-line bg-surface px-2 py-4 text-center shadow-card transition hover:-translate-y-0.5 hover:shadow-float">
           <IconChip icon={k.icon} tone={k.tone} size="lg" />
-          <span className="text-[13px] font-bold leading-tight">{k.title}</span>
-          <span className="-mt-1 text-[11.5px] text-fg-2">{k.sub}</span>
+          <span className="text-[14px] font-bold leading-tight">{k.title}</span>
+          <span className="-mt-1 text-[12.5px] text-fg-2">{k.sub}</span>
         </button>
       ))}
     </div>
@@ -47,13 +47,13 @@ export function Photo({ c, className }: { c: Complaint; className?: string }) {
       {c.photoUrl ? <img src={c.photoUrl} alt={`Photo attached to complaint ${c.id}`} className="absolute inset-0 size-full object-cover" />
         : c.art === 'pothole' || c.category === 'pothole' ? <PotholeArt className="absolute inset-0" />
         : c.art === 'street' || c.category === 'signal' ? <StreetCamArt className="absolute inset-0" />
-        : <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-[13px] font-semibold text-fg-2"><IconChip icon={k.icon} tone={k.tone} size="lg" round />No photo attached</div>}
+        : <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-[14px] font-semibold text-fg-2"><IconChip icon={k.icon} tone={k.tone} size="lg" round />No photo attached</div>}
     </div>
   );
 }
 
 function Kv({ icon, k, children }: { icon: React.ReactNode; k: string; children: React.ReactNode }) {
-  return <div className="flex gap-3 [&>svg]:mt-0.5 [&>svg]:size-5 [&>svg]:shrink-0 [&>svg]:text-fg-3">{icon}<div className="min-w-0"><div className="text-[12px] font-semibold text-fg-2">{k}</div><div className="text-[14px] font-bold">{children}</div></div></div>;
+  return <div className="flex gap-3 [&>svg]:mt-0.5 [&>svg]:size-5 [&>svg]:shrink-0 [&>svg]:text-fg-3">{icon}<div className="min-w-0"><div className="text-[13px] font-semibold text-fg-2">{k}</div><div className="text-[15px] font-bold">{children}</div></div></div>;
 }
 
 export function ComplaintBody({ c }: { c: Complaint }) {
@@ -61,11 +61,11 @@ export function ComplaintBody({ c }: { c: Complaint }) {
   return (
     <div className="flex flex-col gap-4">
       <Photo c={c} />
-      <div><div className="font-mono text-[12px] font-bold text-fg-3">{c.id} · {k.title}</div><h2 className="mt-0.5 text-[19px] leading-tight font-extrabold">{c.title}</h2></div>
+      <div><div className="font-mono text-[13px] font-bold text-fg-3">{c.id} · {k.title}</div><h2 className="mt-0.5 text-[21px] leading-tight font-extrabold">{c.title}</h2></div>
       <Kv icon={<MapPin />} k={t('location')}>{c.address}</Kv>
       <Kv icon={<Activity />} k={t('status')}><span className="mt-1 inline-block"><StatusChip status={c.status} /></span></Kv>
       <Kv icon={<Building2 />} k="Routed to">{c.agency}</Kv>
-      {c.description && <p className="text-[13.5px] text-fg-2">{c.description}</p>}
+      {c.description && <p className="text-[14.5px] text-fg-2">{c.description}</p>}
       <Card className="p-4"><Timeline items={c.timeline} /></Card>
       <Button variant="outline" size="lg" onClick={() => openSheet({ kind: 'cmpmap', id: c.id })}><ExternalLink />{t('trackMap')}</Button>
     </div>
@@ -120,7 +120,7 @@ export function ComplaintDetail() {
       <div className="flex flex-col gap-5">
         <Card className="overflow-hidden">
           <Photo c={c} className="h-[300px]" />
-          <div className="flex flex-col gap-2 p-5"><div className="font-mono text-[12px] font-bold text-fg-3">{c.id} · {k.title}</div><h2 className="text-[20px] font-extrabold">{c.title}</h2>{c.description && <p className="text-[13.5px] text-fg-2">{c.description}</p>}</div>
+          <div className="flex flex-col gap-2 p-5"><div className="font-mono text-[13px] font-bold text-fg-3">{c.id} · {k.title}</div><h2 className="text-[22px] font-extrabold">{c.title}</h2>{c.description && <p className="text-[14.5px] text-fg-2">{c.description}</p>}</div>
         </Card>
         <Card className="overflow-hidden">
           <CardHeader title={t('trackMap')} right={res ? <Chip tone="green">{t('resolved')}</Chip> : c.crew ? <Chip tone="blue"><Label a={c.crew} /></Chip> : <Chip tone="amber">Awaiting assignment</Chip>} />
@@ -134,7 +134,7 @@ export function ComplaintDetail() {
           <Kv icon={<Building2 />} k="Routed to">{c.agency}</Kv>
           <Kv icon={<Clock />} k={t('reported')}>{fmtWhen(c.createdAt)}</Kv>
         </Card>
-        <Card className="p-5"><h2 className="mb-4 text-[15px] font-extrabold">Progress</h2><Timeline items={c.timeline} /></Card>
+        <Card className="p-5"><h2 className="mb-4 text-[16px] font-extrabold">Progress</h2><Timeline items={c.timeline} /></Card>
       </div>
     </div>
   );

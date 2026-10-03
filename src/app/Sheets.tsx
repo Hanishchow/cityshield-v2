@@ -71,8 +71,8 @@ function LocationBody() {
       <div className="flex items-start gap-3">
         <Icon name="pin" className="mt-0.5 size-5 text-primary" />
         <div>
-          <div className="text-[14px] font-bold">{me.area.label}</div>
-          <div className="mt-0.5 text-[12.5px] text-fg-2">
+          <div className="text-[15px] font-bold">{me.area.label}</div>
+          <div className="mt-0.5 text-[13.5px] text-fg-2">
             {me.area.accuracyM != null ? `Accuracy ±${me.area.accuracyM} m · ` : ''}{{ gps: 'GPS fix', network: 'Network', manual: 'Set manually', saved_place: 'Saved place', default: 'Default area' }[me.area.source]}
           </div>
         </div>
@@ -101,7 +101,7 @@ function DialBody({ num }: { num: string }) {
   const h = HELPLINES.find((x) => x.num === num);
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-[14px] text-fg-2">{h ? `${h.name}${h.sub ? ` (${h.sub})` : ''}` : 'Helpline'}. This will place a <b className="text-fg">real phone call</b> from your device.</p>
+      <p className="text-[15px] text-fg-2">{h ? `${h.name}${h.sub ? ` (${h.sub})` : ''}` : 'Helpline'}. This will place a <b className="text-fg">real phone call</b> from your device.</p>
       <div className="flex flex-col gap-2.5 desk:flex-row [&>*]:flex-1">
         <Button variant="danger" size="lg" asChild><a href={`tel:${num}`} onClick={() => setTimeout(close, 300)}><Phone />Call {num}</a></Button>
         <Button variant="ghost" size="lg" onClick={close}>Cancel</Button>
@@ -125,17 +125,17 @@ function TripSheet({ open, onOpenChange, svc, incidentId }: { open: boolean; onO
   ] : [];
   return (
     <Sheet open={open} onOpenChange={onOpenChange} title={`${d.vehicle} · ${t('liveTracking')}`}>
-      {!a ? <p className="text-[14px] text-fg-2">This trip has ended.</p> : (
+      {!a ? <p className="text-[15px] text-fg-2">This trip has ended.</p> : (
         <>
           <Card className="divide-y divide-line overflow-hidden">
-            {rows.map(([k, v]) => <div key={k} className="flex items-center justify-between gap-4 px-4 py-3 text-[13.5px]"><span className="text-fg-2">{k}</span><b className="min-w-0 truncate text-right">{v}</b></div>)}
+            {rows.map(([k, v]) => <div key={k} className="flex items-center justify-between gap-4 px-4 py-3 text-[14.5px]"><span className="text-fg-2">{k}</span><b className="min-w-0 truncate text-right">{v}</b></div>)}
           </Card>
           <Fill a={a} className="mx-0.5 mt-4" />
           <div className="mt-4 flex flex-col gap-2.5 desk:flex-row [&>*]:flex-1">
             {svc !== 'crew' && <Button variant="soft" onClick={() => openOverlay({ kind: 'call', who: svc })}><Phone />Call</Button>}
             <Button variant="ghost" onClick={() => replay.mutate(incidentId, { onSuccess: () => { close(); appToast('Demo replayed', 'refresh', 'police'); } })}><RefreshCw />Replay demo</Button>
           </div>
-          <p className="mt-3 text-[12px] text-fg-3">Simulated trip · runs at demo speed.</p>
+          <p className="mt-3 text-[13px] text-fg-3">Simulated trip · runs at demo speed.</p>
         </>
       )}
     </Sheet>
@@ -160,7 +160,7 @@ function HospitalBody({ incidentId }: { incidentId: string | null }) {
   const { setHospital } = useIncidentActions();
   return (
     <div>
-      <p className="-mt-1 mb-3 text-[13px] text-fg-2">Choose where the ambulance should take the patient.</p>
+      <p className="-mt-1 mb-3 text-[14px] text-fg-2">Choose where the ambulance should take the patient.</p>
       <Card className="overflow-hidden">
         {list.map((h) => (
           <HospitalRow key={h.id} h={h} selected={inc?.destinationHospitalId === h.id} onSelect={() => {
@@ -169,7 +169,7 @@ function HospitalBody({ incidentId }: { incidentId: string | null }) {
           }} />
         ))}
       </Card>
-      <p className="mt-2.5 text-[12px] text-fg-3">Bed availability shown is sample data.</p>
+      <p className="mt-2.5 text-[13px] text-fg-3">Bed availability shown is sample data.</p>
     </div>
   );
 }
@@ -181,7 +181,7 @@ function ServiceMapSheet({ open, onOpenChange, svc }: { open: boolean; onOpenCha
   return (
     <Sheet open={open} onOpenChange={onOpenChange} title={`${SERVICES[svc].vehicle} · ${t('liveTracking')}`} wide>
       <LiveMap className="rounded-2xl" height={desk ? 420 : 320} assignments={assignment ? [assignment] : []} dest={incident ? destPoint(incident) : undefined} aria={`${SERVICES[svc].vehicle} live location`} />
-      {assignment && <div className="mt-3.5 flex items-start gap-3"><Icon name="pin" className="mt-0.5 size-5 text-primary" /><div><Label a={assignment} className="text-[14px] font-bold" /><div className="text-[12.5px] text-fg-2">{t('arriving')} <Arrival a={assignment} /></div></div></div>}
+      {assignment && <div className="mt-3.5 flex items-start gap-3"><Icon name="pin" className="mt-0.5 size-5 text-primary" /><div><Label a={assignment} className="text-[15px] font-bold" /><div className="text-[13.5px] text-fg-2">{t('arriving')} <Arrival a={assignment} /></div></div></div>}
     </Sheet>
   );
 }
@@ -193,7 +193,7 @@ function ComplaintMapSheet({ open, onOpenChange, id }: { open: boolean; onOpenCh
   return (
     <Sheet open={open} onOpenChange={onOpenChange} title={c.title} wide>
       <LiveMap className="rounded-2xl" height={desk ? 420 : 320} assignments={c.crew && !res ? [c.crew] : []} issue={{ pt: destPoint(c, ISSUE_PT), state: res ? 'resolved' : 'open' }} live={!res} aria="Complaint location" pad={{ t: 60, r: 30, b: 30, l: 30 }} />
-      <div className="mt-3.5 flex items-start gap-3"><Icon name="pin" className="mt-0.5 size-5 text-primary" /><div><div className="text-[14px] font-bold">{c.address}</div><div className="mt-1"><StatusChip status={c.status} /></div></div></div>
+      <div className="mt-3.5 flex items-start gap-3"><Icon name="pin" className="mt-0.5 size-5 text-primary" /><div><div className="text-[15px] font-bold">{c.address}</div><div className="mt-1"><StatusChip status={c.status} /></div></div></div>
     </Sheet>
   );
 }
@@ -206,8 +206,8 @@ function LocAccessBody() {
   return (
     <div className="flex flex-col gap-4">
       {state === 'granted' ? <OkCard title="Allowed while using the app" sub="Precise location is on" />
-        : <div className="rounded-2xl border border-warning/25 bg-warning-soft px-4 py-3 text-[13px]"><b>{state === 'denied' ? 'Location is blocked' : 'Location not yet allowed'}</b><div className="text-fg-2">{state === 'denied' ? 'Allow it in your browser settings for faster help.' : 'You will be asked the first time it is needed.'}</div></div>}
-      <p className="text-[13.5px] text-fg-2">City Shield uses your location only to send responders to you, show nearby hospitals and tag complaints. Live location pings are kept for 30 days, then deleted. It is never shared with anyone else.</p>
+        : <div className="rounded-2xl border border-warning/25 bg-warning-soft px-4 py-3 text-[14px]"><b>{state === 'denied' ? 'Location is blocked' : 'Location not yet allowed'}</b><div className="text-fg-2">{state === 'denied' ? 'Allow it in your browser settings for faster help.' : 'You will be asked the first time it is needed.'}</div></div>}
+      <p className="text-[14.5px] text-fg-2">City Shield uses your location only to send responders to you, show nearby hospitals and tag complaints. Live location pings are kept for 30 days, then deleted. It is never shared with anyone else.</p>
       <Button onClick={close}>Done</Button>
     </div>
   );
@@ -226,7 +226,7 @@ function AddPlaceBody() {
       <Field label="Name" htmlFor="p-name"><Input id="p-name" maxLength={40} placeholder="e.g. Office, Gym, College" value={name} onChange={(e) => setName(e.target.value)} autoFocus /></Field>
       <Field label="Address" htmlFor="p-addr"><Input id="p-addr" maxLength={120} placeholder="e.g. HSR Layout Sector 2, Bengaluru" value={addr} onChange={(e) => setAddr(e.target.value)} /></Field>
       <Field label="Type"><Segmented label="Place type" value={type} onChange={setType} options={[{ value: 'home', label: 'Home' }, { value: 'work', label: 'Work' }, { value: 'frequent', label: 'Frequent' }]} /></Field>
-      {err && <p className="text-[12.5px] font-semibold text-sos" role="alert">{err}</p>}
+      {err && <p className="text-[13.5px] font-semibold text-sos" role="alert">{err}</p>}
       <Button variant="navy" size="lg" onClick={save} disabled={add.isPending}><Check />Save location</Button>
     </div>
   );
@@ -237,7 +237,7 @@ function PlaceSheet({ open, onOpenChange, id }: { open: boolean; onOpenChange: (
   if (!x) return null;
   return (
     <Sheet open={open} onOpenChange={onOpenChange} title={x.name}>
-      <div className="mb-4 flex items-start gap-3"><Icon name="pin" className="mt-0.5 size-5 text-primary" /><div><div className="text-[14px] font-bold">{x.address}</div><div className="text-[12.5px] text-fg-2">{{ home: 'Home', work: 'Work', frequent: 'Frequent place' }[x.type]}</div></div></div>
+      <div className="mb-4 flex items-start gap-3"><Icon name="pin" className="mt-0.5 size-5 text-primary" /><div><div className="text-[15px] font-bold">{x.address}</div><div className="text-[13.5px] text-fg-2">{{ home: 'Home', work: 'Work', frequent: 'Frequent place' }[x.type]}</div></div></div>
       <Card className="divide-y divide-line overflow-hidden">
         <Row chevron onClick={() => { upd.mutate({ area: { label: x.address, lat: x.lat, lng: x.lng, source: 'saved_place', accuracyM: null } }); close(); appToast(`Location set to ${x.name}`, 'pin', 'police'); }}><Icon name="locate" className="size-5 text-fg-2" /><RowText title="Use as my current location" /></Row>
         <Row chevron onClick={async () => {
@@ -275,7 +275,7 @@ function ProfileBody() {
   return (
     <div className="flex flex-col gap-4">
       <Field label="Full name" htmlFor="u-name"><Input id="u-name" maxLength={40} value={name} onChange={(e) => setName(e.target.value)} /></Field>
-      <Field label="Mobile number" htmlFor="u-phone" hint={me.phoneVerified ? <span className="text-[12px] font-semibold text-success">Verified</span> : <span className="text-[12px] text-fg-3">Not verified yet — verify to keep your history across devices.</span>}>
+      <Field label="Mobile number" htmlFor="u-phone" hint={me.phoneVerified ? <span className="text-[13px] font-semibold text-success">Verified</span> : <span className="text-[13px] text-fg-3">Not verified yet — verify to keep your history across devices.</span>}>
         <Input id="u-phone" inputMode="tel" maxLength={20} value={phone} onChange={(e) => setPhone(e.target.value)} />
       </Field>
       {!me.phoneVerified && (
@@ -283,13 +283,13 @@ function ProfileBody() {
           {!otp.sent ? <Button variant="soft" size="sm" onClick={send}>Send verification code</Button> : (
             <div className="flex flex-col gap-2.5">
               <Field label="6-digit code" htmlFor="u-otp"><Input id="u-otp" inputMode="numeric" maxLength={6} value={otp.code} onChange={(e) => setOtp({ ...otp, code: e.target.value.replace(/\D/g, '') })} /></Field>
-              {otp.dev && <p className="text-[12px] text-fg-3">Development mode: no SMS is sent. Your code is <b className="font-mono text-fg">{otp.dev}</b>.</p>}
+              {otp.dev && <p className="text-[13px] text-fg-3">Development mode: no SMS is sent. Your code is <b className="font-mono text-fg">{otp.dev}</b>.</p>}
               <Button size="sm" onClick={verify} disabled={otp.code.length !== 6}>Verify</Button>
             </div>
           )}
         </div>
       )}
-      {err && <p className="text-[12.5px] font-semibold text-sos" role="alert">{err}</p>}
+      {err && <p className="text-[13.5px] font-semibold text-sos" role="alert">{err}</p>}
       <Button size="lg" onClick={save} disabled={upd.isPending}><Check />Save</Button>
     </div>
   );
@@ -307,13 +307,13 @@ function RequestBody({ svc }: { svc: ServiceKey }) {
   });
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3"><IconChip icon={SERVICE_ICON[svc]} tone={svc} size="lg" /><div><div className="text-[15px] font-bold">{t(`svc_${svc}` as never)}</div><div className="text-[12.5px] text-fg-2">{SERVICE_SUB[svc]}</div></div></div>
-      <p className="text-[14px] text-fg-2">Send the nearest {d.vehicle.toLowerCase()} to <b className="text-fg">{shortArea(me.area.label)}</b>? Your location is shared with the responding unit.</p>
+      <div className="flex items-center gap-3"><IconChip icon={SERVICE_ICON[svc]} tone={svc} size="lg" /><div><div className="text-[16px] font-bold">{t(`svc_${svc}` as never)}</div><div className="text-[13.5px] text-fg-2">{SERVICE_SUB[svc]}</div></div></div>
+      <p className="text-[15px] text-fg-2">Send the nearest {d.vehicle.toLowerCase()} to <b className="text-fg">{shortArea(me.area.label)}</b>? Your location is shared with the responding unit.</p>
       <div className="flex flex-col gap-2.5 desk:flex-row [&>*]:flex-1">
         <Button variant={svc === 'civic' ? 'primary' : 'sos'} size="lg" onClick={go} disabled={raise.isPending}><Icon name={SERVICE_ICON[svc]} />{raise.isPending ? 'Dispatching…' : `Request ${d.vehicle.toLowerCase()}`}</Button>
         <Button variant="ghost" size="lg" onClick={close}>Cancel</Button>
       </div>
-      {svc !== 'civic' && <p className="text-[12px] text-fg-3">Prototype — responders are simulated. In a real emergency call 112.</p>}
+      {svc !== 'civic' && <p className="text-[13px] text-fg-3">Prototype — responders are simulated. In a real emergency call 112.</p>}
     </div>
   );
 }

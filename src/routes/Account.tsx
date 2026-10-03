@@ -26,11 +26,11 @@ function ProfileCard() {
   if (!me) return null;
   return (
     <Card className="flex items-center gap-4 p-4 sm:p-5">
-      <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-cobalt to-navy-900 text-[22px] font-extrabold text-white">{initials(me.name)}</span>
+      <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-cobalt to-navy-900 text-[24px] font-extrabold text-white">{initials(me.name)}</span>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[18px] font-extrabold">{me.name}</div>
-        <div className="text-[13px] text-fg-2">{me.phone ?? 'No mobile number yet'} {me.phoneVerified && <Chip tone="green" className="ml-1">Verified</Chip>}</div>
-        <div className="text-[13px] text-fg-2">{me.city}</div>
+        <div className="truncate text-[20px] font-extrabold">{me.name}</div>
+        <div className="text-[14px] text-fg-2">{me.phone ?? 'No mobile number yet'} {me.phoneVerified && <Chip tone="green" className="ml-1">Verified</Chip>}</div>
+        <div className="text-[14px] text-fg-2">{me.city}</div>
       </div>
       <button onClick={() => openSheet({ kind: 'profile' })} aria-label="Edit profile" className="grid size-10 place-items-center rounded-xl bg-surface-3 text-fg-2 hover:text-fg"><Pencil className="size-[18px]" /></button>
     </Card>
@@ -83,7 +83,7 @@ export function Settings() {
           return (
             <button key={L.code} role="radio" aria-checked={on} onClick={() => setLang(L.code as Lang)} className="flex w-full items-center gap-3 px-4 py-3.5 text-left hover:bg-surface-2 sm:px-5">
               <span className={cn('grid size-5 place-items-center rounded-full border-2', on ? 'border-primary' : 'border-line-strong')}>{on && <i className="size-2.5 rounded-full bg-primary" />}</span>
-              <span lang={L.code} className="text-[14px] font-semibold">{L.code === 'en' ? 'English' : `${L.native} (${L.name})`}</span>
+              <span lang={L.code} className="text-[15px] font-semibold">{L.code === 'en' ? 'English' : `${L.native} (${L.name})`}</span>
             </button>
           );
         })}
@@ -99,7 +99,7 @@ export function Settings() {
       <Card className="flex flex-col gap-3 p-4 sm:px-5">
         <Segmented label="Theme" value={ui.theme} onChange={setTheme} options={[{ value: 'light', label: <><Sun />Light</> }, { value: 'dark', label: <><Moon />Dark</> }, { value: 'system', label: <><Settings2 />System</> }]} />
         <div className="flex items-center justify-between gap-3 pt-1">
-          <div><div className="text-[14px] font-semibold">Live map view</div><div className="text-[12.5px] text-fg-2">Auto uses 3D on capable desktops, 2D on phones.</div></div>
+          <div><div className="text-[15px] font-semibold">Live map view</div><div className="text-[13.5px] text-fg-2">Auto uses 3D on capable desktops, 2D on phones.</div></div>
           <Segmented label="Map view" value={ui.mapMode} onChange={(v) => ui.set({ mapMode: v })} options={[{ value: 'auto', label: 'Auto' }, { value: '2d', label: '2D' }, { value: '3d', label: '3D' }]} />
         </div>
       </Card>

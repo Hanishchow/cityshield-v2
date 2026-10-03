@@ -12,6 +12,7 @@ import { usePageMetaStore, type Side } from './pageMeta.ts';
 import { openSheet, startSos } from './overlayStore.ts';
 import { useIncidents, useMe, useMode, useUnread } from '@/lib/api/hooks.ts';
 import { Logo } from '@/components/brand/Logo.tsx';
+import { ThemeToggle } from '@/components/ThemeToggle.tsx';
 import { Icon, SERVICE_ICON } from '@/components/icons.tsx';
 import { cn, initials, shortArea } from '@/lib/utils.ts';
 import { useT, type TKey } from '@/i18n/index.ts';
@@ -22,14 +23,14 @@ function NavItem({ side, to, icon, label, cur, extra }: { side: Side; to: string
   const on = cur === side;
   return (
     <button onClick={() => nav(to)} aria-current={on ? 'page' : undefined}
-      className={cn('flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-semibold transition-colors', on ? 'bevel bg-white/[0.09] text-white' : 'text-white/65 hover:bg-white/[0.05] hover:text-white')}>
+      className={cn('flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[14.5px] font-semibold transition-colors', on ? 'bevel bg-white/[0.09] text-white' : 'text-white/65 hover:bg-white/[0.05] hover:text-white')}>
       <Icon name={icon} className="size-[19px]" />
       <span className="flex-1 text-left">{label}</span>
       {extra}
     </button>
   );
 }
-const Group = ({ children }: { children: React.ReactNode }) => <div className="px-3 pt-4 pb-1.5 text-[10.5px] font-bold tracking-[0.12em] text-white/40 uppercase">{children}</div>;
+const Group = ({ children }: { children: React.ReactNode }) => <div className="px-3 pt-4 pb-1.5 text-[11.5px] font-bold tracking-[0.12em] text-white/40 uppercase">{children}</div>;
 
 function Sidebar() {
   const t = useT(), cur = usePageMetaStore((s) => s.meta.side), unread = useUnread();
@@ -40,7 +41,7 @@ function Sidebar() {
       <Logo className="px-2 pb-5" tagline={t('tagline')} />
       <button onClick={startSos} className="mb-3 flex items-center gap-3 rounded-2xl bg-gradient-to-br from-[#EE4248] to-sos-deep px-3.5 py-3 text-left shadow-[0_12px_28px_-10px_rgb(220_47_53/0.75)] transition hover:brightness-110">
         <Icon name="siren" className="size-6" />
-        <span><b className="block text-[14.5px]">{t('sosTitle')}</b><small className="text-[11.5px] text-white/80">{t('police')} · {t('ambulance')} · {t('fire')}</small></span>
+        <span><b className="block text-[15.5px]">{t('sosTitle')}</b><small className="text-[12.5px] text-white/80">{t('police')} · {t('ambulance')} · {t('fire')}</small></span>
       </button>
       <NavItem side="home" to="/" icon="home" label={t('home')} cur={cur} />
       <Group>Services</Group>
@@ -52,7 +53,7 @@ function Sidebar() {
       <NavItem side="complaints" to="/complaints" icon="clipboard" label={t('complaints')} cur={cur} />
       <NavItem side="track" to="/track" icon="track" label={t('liveTracking')} cur={cur} />
       <NavItem side="notifications" to="/notifications" icon="bell" label={t('notifications')} cur={cur}
-        extra={unread ? <span className="grid h-5 min-w-5 place-items-center rounded-full bg-sos px-1.5 text-[11px] font-bold">{unread > 9 ? '9+' : unread}</span> : undefined} />
+        extra={unread ? <span className="grid h-5 min-w-5 place-items-center rounded-full bg-sos px-1.5 text-[12px] font-bold">{unread > 9 ? '9+' : unread}</span> : undefined} />
       <Group>Account</Group>
       <NavItem side="places" to="/places" icon="pin" label={t('saved')} cur={cur} />
       <NavItem side="profile" to="/profile" icon="user" label={t('profile')} cur={cur} />
@@ -62,7 +63,7 @@ function Sidebar() {
       <div className="mt-auto pt-5">
         <button onClick={() => openSheet({ kind: 'dial', num: '112' })} className="bevel flex w-full items-center gap-3 rounded-2xl bg-white/[0.05] px-3 py-3 text-left hover:bg-white/[0.08]">
           <span className="grid size-10 place-items-center rounded-xl bg-sos/20 text-[#FF6B6E]"><Icon name="phone" className="size-5" /></span>
-          <span><b className="block text-[15px]">112</b><span className="text-[11.5px] text-white/60">All emergencies · opens your phone dialer</span></span>
+          <span><b className="block text-[16px]">112</b><span className="text-[12.5px] text-white/60">All emergencies · opens your phone dialer</span></span>
         </button>
       </div>
     </aside>
@@ -76,19 +77,20 @@ function Topbar() {
     <header className="sticky top-0 z-30 hidden h-[72px] items-center gap-3 border-b border-line bg-surface/85 px-6 backdrop-blur-xl desk:flex">
       {canBack && <button onClick={() => nav(-1)} aria-label="Back" className="grid size-10 place-items-center rounded-xl text-fg-2 hover:bg-surface-3 hover:text-fg"><ArrowLeft className="size-5" /></button>}
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-[19px] font-extrabold tracking-[-0.015em]">{meta.title}</h1>
-        {meta.sub && <p className="truncate text-[12.5px] text-fg-2">{meta.sub}</p>}
+        <h1 className="truncate text-[21px] font-extrabold tracking-[-0.015em]">{meta.title}</h1>
+        {meta.sub && <p className="truncate text-[13.5px] text-fg-2">{meta.sub}</p>}
       </div>
-      <button onClick={() => openSheet({ kind: 'loc' })} className="flex max-w-[260px] items-center gap-1.5 truncate rounded-xl border border-line bg-surface-2 px-3 py-2 text-[12.5px] font-semibold text-fg-2 hover:text-fg">
+      <button onClick={() => openSheet({ kind: 'loc' })} className="flex max-w-[260px] items-center gap-1.5 truncate rounded-xl border border-line bg-surface-2 px-3 py-2 text-[13.5px] font-semibold text-fg-2 hover:text-fg">
         <Icon name="pin" className="size-4 shrink-0 text-primary" /><span className="truncate">{me ? shortArea(me.area.label) : '…'}</span>
       </button>
+      <ThemeToggle />
       <button onClick={() => nav('/notifications')} aria-label="Notifications" className="relative grid size-10 place-items-center rounded-xl border border-line bg-surface-2 text-fg-2 hover:text-fg">
         <Bell className="size-5" />
-        {unread > 0 && <span className="absolute -top-1 -right-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-sos px-1 text-[10.5px] font-bold text-white">{unread > 9 ? '9+' : unread}</span>}
+        {unread > 0 && <span className="absolute -top-1 -right-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-sos px-1 text-[11.5px] font-bold text-white">{unread > 9 ? '9+' : unread}</span>}
       </button>
       <button onClick={() => nav('/profile')} className="flex items-center gap-2.5 rounded-xl py-1 pr-2 pl-1 hover:bg-surface-3">
-        <i className="grid size-9 place-items-center rounded-xl bg-navy-900 text-[12.5px] font-extrabold text-white not-italic dark:bg-primary">{initials(me?.name ?? '')}</i>
-        <span className="hidden text-left wide:block"><b className="block text-[13px] leading-tight">{me?.name}</b><span className="text-[11.5px] text-fg-3">{me?.role === 'citizen' ? 'Citizen' : 'Operator'}</span></span>
+        <i className="grid size-9 place-items-center rounded-xl bg-navy-900 text-[13.5px] font-extrabold text-white not-italic dark:bg-primary">{initials(me?.name ?? '')}</i>
+        <span className="hidden text-left wide:block"><b className="block text-[14px] leading-tight">{me?.name}</b><span className="text-[12.5px] text-fg-3">{me?.role === 'citizen' ? 'Citizen' : 'Operator'}</span></span>
       </button>
     </header>
   );
@@ -105,7 +107,7 @@ function BottomNav() {
         const on = meta.tab === k;
         return (
           <button key={k} onClick={() => nav(to)} aria-current={on ? 'page' : undefined}
-            className={cn('flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-semibold', on ? (meta.dark ? 'text-white' : 'text-primary') : meta.dark ? 'text-white/50' : 'text-fg-3')}>
+            className={cn('flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-[12px] font-semibold', on ? (meta.dark ? 'text-white' : 'text-primary') : meta.dark ? 'text-white/50' : 'text-fg-3')}>
             <Icon name={icon} className="size-[22px]" />{t(label)}
           </button>
         );
@@ -118,10 +120,10 @@ function OfflineBanner() {
   const mode = useMode(), t = useT();
   if (mode !== 'offline') return null;
   return (
-    <div role="status" className="flex items-center gap-2 bg-warning-soft px-4 py-2 text-[12.5px] font-semibold text-warning">
+    <div role="status" className="flex items-center gap-2 bg-warning-soft px-4 py-2 text-[13.5px] font-semibold text-warning">
       <WifiOff className="size-4 shrink-0" />
       <span className="flex-1">{t('offlineDemo')}</span>
-      <button onClick={() => openSheet({ kind: 'dial', num: '112' })} className="rounded-lg bg-sos px-2.5 py-1 text-[12px] font-bold text-white">112</button>
+      <button onClick={() => openSheet({ kind: 'dial', num: '112' })} className="rounded-lg bg-sos px-2.5 py-1 text-[13px] font-bold text-white">112</button>
     </div>
   );
 }
