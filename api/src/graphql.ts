@@ -63,6 +63,10 @@ const schema = /* GraphQL */ `
 `;
 
 interface Ctx { uid: () => Promise<string>; ops: () => Promise<void> }
+declare module 'mercurius' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface MercuriusContext extends Ctx {}
+}
 
 export async function registerGraphql(app: FastifyInstance, svc: CityShield, repoKind: string) {
   const resolvers = {
@@ -89,7 +93,13 @@ export async function registerGraphql(app: FastifyInstance, svc: CityShield, rep
     },
   };
 
-  await app.register(mercurius, {
+  /* Own encapsulated context: the app's zod compilers can't read Mercurius's plain
+     JSON-Schema routes, so this context uses plain JSON (Mercurius validates the
+     GraphQL document itself). */
+  await app.register(async (gql) => {
+  gql.setValidatorCompiler(() => () => true);
+  gql.setSerializerCompiler(() => (data) => JSON.stringify(data));
+  await gql.register(mercurius, {
     schema,
     resolvers,
     graphiql: !config.prod,
@@ -114,5 +124,6 @@ export async function registerGraphql(app: FastifyInstance, svc: CityShield, rep
         if (!(await svc.isOps(uid))) throw new HttpError(403, 'Command Centre access only');
       },
     }),
+  });
   });
 }
