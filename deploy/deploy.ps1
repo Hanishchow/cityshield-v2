@@ -27,9 +27,9 @@ if [ ! -f .env ]; then
 fi
 rm -rf src && mkdir src && tar -xzf release.tar.gz -C src
 cd src
-PROFILE=""; grep -q "^NGROK_AUTHTOKEN=." ../.env && grep -q "^NGROK_DOMAIN=." ../.env && PROFILE="--profile tunnel"
-docker compose --env-file ../.env $PROFILE up -d --build
-docker compose --env-file ../.env $PROFILE ps
+CS_PROFILE=""; grep -q "^NGROK_AUTHTOKEN=." ../.env && grep -q "^NGROK_DOMAIN=." ../.env && CS_PROFILE="--profile tunnel"
+docker compose --env-file ../.env `$CS_PROFILE up -d --build
+docker compose --env-file ../.env `$CS_PROFILE ps
 "@
 # bash rejects Windows line endings (set -e plus a CR), so strip CRs before sending.
 ssh -o BatchMode=yes $Host_ ($remote -replace "`r", '') 2>&1 | ForEach-Object { "$_" }
