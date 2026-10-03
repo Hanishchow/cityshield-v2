@@ -1,7 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronRight, Clock, Lock, Phone, Video, Navigation, X, CheckCheck } from 'lucide-react';
 import { SERVICE_KEYS, type Assignment, type Incident, type ServiceKey } from '@shared/contract.ts';
-import { CIVIC, SERVICES, SERVICE_SUB, STATIONS } from '@shared/catalog.ts';
+import { CIVIC, SERVICES, SERVICE_SUB, STATIONS, stationById } from '@shared/catalog.ts';
+import { RouteInfo } from '@/features/map/RouteInfo.tsx';
 import { destPoint } from '@shared/services.ts';
 import { usePageMeta } from '@/app/pageMeta.ts';
 import { openSheet, useOverlays } from '@/app/overlayStore.ts';
@@ -30,8 +31,11 @@ export default function Service() {
 
   const station = STATIONS.find((s) => s.kind === ({ police: 'police_station', ambulance: 'ambulance_base', fire: 'fire_station', civic: 'ward_depot' } as const)[k]);
   const dest = incident ? destPoint(incident) : me ? destPoint(me.area) : undefined;
+  const hosp = k === 'ambulance' && incident?.destinationHospitalId ? stationById(incident.destinationHospitalId) : null;
   const map = (cls: string, h?: number) => (
     <LiveMap className={cls} height={h} assignments={assignment ? [assignment] : []} dest={dest}
+      hospital={hosp ? { lat: hosp.lat, lng: hosp.lng, name: hosp.name } : null}
+      locationLabel={me?.area.source === 'gps' ? 'You are here' : 'You are here (demo)'}
       aria={`${SERVICES[k].vehicle} live location`} pad={desk ? { t: 70, r: 60, b: 50, l: 60 } : undefined} live={!!assignment} />
   );
 
@@ -39,9 +43,9 @@ export default function Service() {
     return (
       <div>
         <MobileHeader title={title} sub={t('liveTracking')} action={incident ? <HeaderAction icon="clipboard" label="Trip details" onClick={() => openSheet({ kind: 'trip', svc: k, incidentId: incident.id })} /> : undefined} />
-        {map('h-[300px]')}
+        {map('h-[340px]')}
         <div className="relative -mt-5 flex flex-col gap-3.5 rounded-t-[26px] bg-bg px-4 pt-4 pb-8">
-          {incident && assignment ? <EtaCard k={k} a={assignment} incident={incident} /> : <RequestCard k={k} stationName={station?.name} />}
+          {incident && assignment ? <><EtaCard k={k} a={assignment} incident={incident} /><RouteInfo a={assignment} incident={incident} /></> : <RequestCard k={k} stationName={station?.name} />}
           <Details k={k} incident={incident} />
           {incident && <IncidentRecord incident={incident} />}
         </div>
@@ -64,6 +68,7 @@ export default function Service() {
               <div className="mt-2 flex justify-between text-[12.5px] font-semibold text-fg-3"><span>{t('dispatched')}</span><span>{t('enRoute')}</span><span>{t('arrived')}</span></div>
             </Card>
             <EtaCard k={k} a={assignment} incident={incident} />
+            <RouteInfo a={assignment} incident={incident} />
           </>
         ) : <RequestCard k={k} stationName={station?.name} />}
         <Details k={k} incident={incident} />

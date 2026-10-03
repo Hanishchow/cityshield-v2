@@ -11,7 +11,8 @@ import {
   useActiveFor, useBackend, useComplaint, useIncidentActions, useIncidents, useMe, useNearbyHospitals, usePlaceMutations, usePlaces, useUpdateMe,
 } from '@/lib/api/hooks.ts';
 import { ApiError } from '@/lib/api/backend.ts';
-import { areaLocation, requestGps } from '@/lib/location.ts';
+import { areaLocation } from '@/lib/location.ts';
+import { useLocateMe } from '@/lib/useLocateMe.ts';
 import { Sheet } from '@/components/ui/sheet.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Field, Input, Segmented } from '@/components/ui/controls.tsx';
@@ -54,17 +55,10 @@ export function Sheets() {
 /* ---------- location ---------- */
 function LocationBody() {
   const me = useMe().data, places = usePlaces().data ?? [];
-  const upd = useUpdateMe(), close = useOverlays((x) => x.closeSheet), backend = useBackend();
-  const [busy, setBusy] = useState(false);
+  const upd = useUpdateMe(), close = useOverlays((x) => x.closeSheet);
+  const { locate, busy } = useLocateMe();
   if (!me) return null;
-  const useGps = async () => {
-    setBusy(true);
-    const f = await requestGps();
-    if (!f) { setBusy(false); appToast('GPS unavailable here — using your saved area', 'locate', 'amber'); return; }
-    const g = await backend.geoReverse(f.lat, f.lng).catch(() => null);
-    upd.mutate({ area: { label: g?.label ?? `${f.lat.toFixed(4)}, ${f.lng.toFixed(4)}`, lat: f.lat, lng: f.lng, accuracyM: f.accuracyM, source: 'gps' } });
-    setBusy(false); close(); appToast(`Location updated (±${f.accuracyM} m)`, 'locate', 'police');
-  };
+  const useGps = async () => { if (await locate()) close(); };
   return (
     <div className="flex flex-col gap-4">
       <LiveMap className="h-[200px] rounded-2xl" live={false} toggle={false} dest={destPoint(me.area)} aria="Your location" pad={{ t: 40, r: 20, b: 20, l: 20 }} />

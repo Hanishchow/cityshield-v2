@@ -1,0 +1,35 @@
+/* Street map (Leaflet) — ported from the updated prototype, mapped onto this app's tokens. */
+.lmap { background: var(--map-land); }
+.lm-canvas { position: absolute; inset: 0; z-index: 0; }
+.lmap .leaflet-container { font-family: var(--font-sans); background: var(--map-land); }
+[data-theme="dark"] .lmap .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.88) saturate(0.75); }
+.lmap .leaflet-control-attribution { font-size: 10px; }
+.lmap .leaflet-bar { border: 0; box-shadow: var(--shadow); border-radius: 12px; overflow: hidden; }
+.lmap .leaflet-bar a { width: 36px; height: 36px; line-height: 36px; color: #0F1C36; }
+.lm-ic { background: none; border: 0; }
+
+.lm-stx { display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 800; letter-spacing: 0.04em; padding: 5px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-2); white-space: nowrap; line-height: 1.3; }
+.lm-stx i { width: 8px; height: 8px; border-radius: 50%; background: var(--warning); flex: none; }
+.lm-stx[data-tone="go"] { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
+.lm-stx[data-tone="go"] i { background: var(--primary); animation: live 1.2s infinite; }
+.lm-stx[data-tone="ok"] { background: var(--success-soft); color: var(--success); border-color: transparent; }
+.lm-stx[data-tone="ok"] i { background: var(--success); }
+.lm-pill { position: absolute; top: 10px; left: 10px; z-index: 1000; box-shadow: var(--shadow); max-width: calc(100% - 70px); }
+.lm-ctl { position: absolute; top: 10px; right: 10px; z-index: 1000; display: flex; flex-direction: column; background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+.lm-ctl button { width: 38px; height: 38px; display: grid; place-items: center; color: var(--text-2); }
+.lm-ctl button + button { border-top: 1px solid var(--border); }
+.lm-ctl button:hover { background: var(--surface-2); color: var(--primary); }
+.lm-sim { position: absolute; left: 8px; bottom: 6px; z-index: 1000; font-size: 10.5px; font-weight: 600; color: var(--text-2); background: var(--surface); opacity: 0.92; padding: 2px 7px; border-radius: 6px; }
+
+.lm-node { width: 34px; height: 34px; border-radius: 10px; background: #fff; border: 2px solid var(--c, #2A56C6); color: var(--c, #2A56C6); display: grid; place-items: center; box-shadow: 0 2px 8px rgba(10, 26, 63, 0.3); }
+.lm-pin { width: 34px; height: 34px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--c, #DC2F35); border: 3px solid #fff; box-shadow: 0 3px 10px rgba(10, 26, 63, 0.35); display: grid; place-items: center; color: #fff; }
+.lm-pin span { transform: rotate(45deg); display: grid; place-items: center; }
+.lm-me { position: relative; width: 20px; height: 20px; }
+.lm-me b { position: absolute; inset: 2px; border-radius: 50%; background: #2F6FE4; border: 3px solid #fff; box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4); }
+.lm-me i { position: absolute; inset: -9px; border-radius: 50%; background: rgba(47, 111, 228, 0.3); animation: pulse-ring 2s ease-out infinite; }
+.lm-veh { position: relative; width: 42px; height: 42px; }
+.lm-veh .bd { position: absolute; inset: 0; border-radius: 50%; background: var(--c); border: 3px solid #fff; display: grid; place-items: center; color: #fff; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35); }
+.lm-veh .arr { position: absolute; inset: -11px; pointer-events: none; transition: transform 0.2s linear; }
+.lm-veh .arr::before { content: ''; position: absolute; left: 50%; top: 0; margin-left: -7px; border: 7px solid transparent; border-top: 0; border-bottom: 10px solid var(--c); }
+.lm-tip { background: var(--surface); color: var(--text); border: 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(10, 26, 63, 0.28); font: 700 12px var(--font-sans); padding: 3px 8px; }
+.lm-tip::before { display: none; }

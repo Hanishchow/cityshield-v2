@@ -5,7 +5,7 @@
  * because a GPU is busy.
  */
 import { useMemo } from 'react';
-import { useIsDesktop, useReducedMotion } from '@/lib/useMedia.ts';
+import { useReducedMotion } from '@/lib/useMedia.ts';
 import { useUI } from '@/store/ui.ts';
 
 let webgl: boolean | null = null;
@@ -33,16 +33,11 @@ export function useDecor3D(): boolean {
   return useMemo(() => !reduced && hasWebGL() && !lowPower(), [reduced]);
 }
 
-/** Live maps: the user's 2D/3D choice; "auto" = 3D on capable desktops, 2D on phones. */
+/** Live maps: the real street map by default; the 3D city only when chosen. */
 export function useMap3D(): { use3D: boolean; available: boolean } {
   const mode = useUI((s) => s.mapMode);
-  const desk = useIsDesktop();
-  const reduced = useReducedMotion();
   const available = hasWebGL();
-  if (!available) return { use3D: false, available };
-  if (mode === '3d') return { use3D: true, available };
-  if (mode === '2d') return { use3D: false, available };
-  return { use3D: desk && !reduced && !lowPower(), available };
+  return { use3D: available && mode === '3d', available };
 }
 
 /** Schematic units → world units for every 3D scene. */

@@ -6,7 +6,7 @@ import { CATEGORIES, categoryOf } from '@shared/catalog.ts';
 import { usePageMeta } from '@/app/pageMeta.ts';
 import { useBackend, useComplaints, useCreateComplaint, useMe } from '@/lib/api/hooks.ts';
 import { ApiError } from '@/lib/api/backend.ts';
-import { requestGps } from '@/lib/location.ts';
+import { LOCATE_MESSAGE, locate } from '@/lib/location.ts';
 import { useUI, type Draft } from '@/store/ui.ts';
 import { Card, CardHeader } from '@/components/ui/card.tsx';
 import { Button } from '@/components/ui/button.tsx';
@@ -59,14 +59,15 @@ function ReportForm() {
 
   const gps = async () => {
     setLocBusy(true);
-    const f = await requestGps();
-    if (f) {
-      const g = await backend.geoReverse(f.lat, f.lng).catch(() => null);
-      patch({ address: g?.label ?? me.area.label, lat: f.lat, lng: f.lng });
-      appToast(`Location added from GPS (±${f.accuracyM} m)`, 'locate', 'police');
+    const r = await locate();
+    if (r.ok && r.inArea) {
+      const g = await backend.geoReverse(r.fix.lat, r.fix.lng).catch(() => null);
+      patch({ address: g?.label ?? `${r.fix.lat.toFixed(5)}, ${r.fix.lng.toFixed(5)}`, lat: r.fix.lat, lng: r.fix.lng });
+      appToast(`Location added from GPS (±${r.fix.accuracyM} m)`, 'locate', 'police');
     } else {
-      patch({ address: me.area.label, lat: me.area.lat, lng: me.area.lng });
-      appToast('GPS unavailable — used your current area instead', 'locate', 'amber');
+      /* keep what the user typed; only fill the area if the field is empty */
+      if (!d.address.trim()) patch({ address: me.area.label, lat: me.area.lat, lng: me.area.lng });
+      appToast(r.ok ? `You're about ${r.kmFromCity} km from Bengaluru — complaints are for the Bengaluru area.` : LOCATE_MESSAGE[r.reason], 'locate', 'amber');
     }
     setBad(false); setLocBusy(false);
   };

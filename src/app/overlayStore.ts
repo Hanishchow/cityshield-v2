@@ -2,9 +2,12 @@
 import { create } from 'zustand';
 import type { ServiceKey } from '@shared/contract.ts';
 
+export type SosService = 'police' | 'ambulance' | 'fire';
+
 export type Overlay =
-  | { kind: 'sos-countdown' }
-  | { kind: 'sos-sent'; incidentId: string }
+  | { kind: 'sos-choose' }
+  | { kind: 'sos-countdown'; svc: SosService }
+  | { kind: 'sos-sent'; incidentId: string; svc: SosService }
   | { kind: 'call'; who: 'police' | 'ambulance' | 'fire' | 'civic' }
   | { kind: 'video' }
   | null;
@@ -39,4 +42,5 @@ export const useOverlays = create<S>((set) => ({
   closeSheet: () => set({ sheet: null }),
 }));
 export const openSheet = (s: SheetState) => useOverlays.getState().openSheet(s);
-export const startSos = () => useOverlays.getState().openOverlay({ kind: 'sos-countdown' });
+/** SOS first asks which service is needed, then counts down (prototype flow). */
+export const startSos = () => useOverlays.getState().openOverlay({ kind: 'sos-choose' });

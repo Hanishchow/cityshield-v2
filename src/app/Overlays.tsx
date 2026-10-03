@@ -7,7 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { Check, PhoneOff, Route, X } from 'lucide-react';
 import { SERVICES } from '@shared/catalog.ts';
-import { useOverlays } from './overlayStore.ts';
+import { useOverlays, type SosService } from './overlayStore.ts';
+import { SOS_ART, SOS_SUB } from '@/features/sos/art.ts';
+import { ChevronRight } from 'lucide-react';
 import { useIncidentActions, useIncidents, useMe, useBackend } from '@/lib/api/hooks.ts';
 import { areaLocation, requestGps } from '@/lib/location.ts';
 import { appToast } from '@/components/toast.tsx';
@@ -35,8 +37,9 @@ export function Overlays() {
     <AnimatePresence>
       {overlay && (
         <motion.div key={overlay.kind} className="fixed inset-0 z-[60]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
-          {overlay.kind === 'sos-countdown' && <SosCountdown />}
-          {overlay.kind === 'sos-sent' && <SosSent incidentId={overlay.incidentId} />}
+          {overlay.kind === 'sos-choose' && <SosChoose />}
+          {overlay.kind === 'sos-countdown' && <SosCountdown svc={overlay.svc} />}
+          {overlay.kind === 'sos-sent' && <SosSent incidentId={overlay.incidentId} svc={overlay.svc} />}
           {overlay.kind === 'call' && <CallScreen who={overlay.who} />}
           {overlay.kind === 'video' && <VideoScreen />}
         </motion.div>
@@ -55,16 +58,49 @@ function Shell({ children, tone = 'sos', label }: { children: React.ReactNode; t
   );
 }
 
-function SosCountdown() {
+/* ---------- step 1: what do you need? (from the updated prototype) ---------- */
+function SosChoose() {
   const { closeOverlay, openOverlay } = useOverlays();
   const me = useMe().data;
-  const { sos } = useIncidentActions();
+  const t = useT();
+  useEffect(() => {
+    vibrate(40);
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeOverlay(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [closeOverlay]);
+  const BG: Record<SosService, string> = { police: '#E3ECFF', ambulance: '#FFE8E8', fire: '#FFEBDD' };
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Choose emergency service"
+      className="flex size-full flex-col items-center overflow-y-auto bg-[radial-gradient(120%_80%_at_50%_20%,#3A0D16_0%,#0A1330_60%,#050B1E_100%)] px-5 pt-[calc(34px+env(safe-area-inset-top,0px))] pb-10 text-center text-white">
+      <h2 className="text-[28px] font-extrabold">What do you need?</h2>
+      <p className="mt-2 max-w-[400px] text-[15px] text-white/75">Pick a service — it will be alerted with your live location, {me ? shortArea(me.area.label) : '…'}.</p>
+      <div className="mt-5 flex w-full max-w-[420px] flex-col gap-3">
+        {(['police', 'ambulance', 'fire'] as const).map((k, i) => (
+          <motion.button key={k} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 + i * 0.06 }}
+            onClick={() => openOverlay({ kind: 'sos-countdown', svc: k })} aria-label={t(k)}
+            className="flex w-full items-center gap-3.5 rounded-[20px] border border-white/15 bg-white/[0.07] py-2.5 pr-3.5 pl-2.5 text-left transition hover:bg-white/[0.12] active:scale-[0.98]">
+            <span className="grid h-[84px] w-[112px] shrink-0 place-items-center overflow-hidden rounded-[14px] [&>svg]:block [&>svg]:size-full" style={{ background: BG[k] }} dangerouslySetInnerHTML={{ __html: SOS_ART[k] }} />
+            <span className="min-w-0 flex-1"><b className="block text-[19px] leading-tight font-extrabold">{t(k)}</b><span className="mt-1 block text-[13.5px] text-white/70">{SOS_SUB[k]}</span></span>
+            <ChevronRight className="size-5 text-white/60" />
+          </motion.button>
+        ))}
+      </div>
+      <Button variant="overlay" size="lg" className="mt-6 min-w-[200px]" onClick={closeOverlay}><X />Cancel</Button>
+      <p className="mt-5 text-[12.5px] text-white/50">Prototype — no real services are contacted. In a real emergency call 112.</p>
+    </div>
+  );
+}
+
+function SosCountdown({ svc }: { svc: SosService }) {
+  const { closeOverlay, openOverlay } = useOverlays();
+  const me = useMe().data;
+  const { raise } = useIncidentActions();
   const backend = useBackend();
   const t = useT();
   const deco = useDecor3D();
   const [n, setN] = useState(3);
   const fired = useRef(false);
-  const key = useRef(crypto.randomUUID());
 
   const cancel = () => { if (fired.current) return; closeOverlay(); appToast('SOS cancelled — nothing was sent', 'x', 'police'); };
 
@@ -81,15 +117,15 @@ function SosCountdown() {
     if (n > 0 || fired.current || !me) return;
     fired.current = true;
     vibrate([120, 60, 120]);
-    sos.mutate({ location: areaLocation(me), key: key.current }, {
+    raise.mutate({ kind: svc, location: areaLocation(me) }, {
       onSuccess: (inc) => {
-        openOverlay({ kind: 'sos-sent', incidentId: inc.id });
+        openOverlay({ kind: 'sos-sent', incidentId: inc.id, svc });
         /* refine with GPS in the background — never delay the SOS for it */
         if (me.shareLive) void requestGps().then((f) => f && backend.ping(inc.id, { ...f, source: 'gps' }).catch(() => {}));
       },
       onError: () => { closeOverlay(); appToast('Could not send SOS. Call 112 now.', 'alert', 'sos'); },
     });
-  }, [n, me, sos, openOverlay, closeOverlay, backend]);
+  }, [n, me, raise, svc, openOverlay, closeOverlay, backend]);
 
   const C = 2 * Math.PI * 80;
   return (
@@ -104,17 +140,16 @@ function SosCountdown() {
         </svg>
         <b className="relative text-[64px] font-extrabold tabular" aria-live="assertive">{Math.max(n, 0) || <Check className="size-14" />}</b>
       </div>
-      <h2 className="mt-6 text-[26px] font-extrabold">{n > 0 ? <>Sending SOS in {n}…</> : 'Sending…'}</h2>
-      <p className="mt-2 max-w-[360px] text-[15px] text-white/75">
-        Alerting the nearest {t('ambulance')} and {t('police')} with your live location — {me ? shortArea(me.area.label) : '…'}.
-      </p>
+      <h2 className="mt-6 text-[26px] font-extrabold">{n > 0 ? <>Alerting {t(svc)} in {n}…</> : 'Sending…'}</h2>
+      <p className="mt-2 max-w-[360px] text-[15px] text-white/75">Sharing your live location — {me ? shortArea(me.area.label) : '…'}.</p>
       <Button variant="overlay" size="lg" className="mt-8 min-w-[200px]" onClick={cancel} disabled={n <= 0} autoFocus><X />Cancel</Button>
       <p className="mt-6 text-[12.5px] text-white/50">Prototype — no real emergency service is contacted. In a real emergency call 112.</p>
     </Shell>
   );
 }
 
-function SosSent({ incidentId }: { incidentId: string }) {
+function SosSent({ incidentId, svc }: { incidentId: string; svc: SosService }) {
+  const t = useT();
   const { closeOverlay } = useOverlays();
   const nav = useNavigate();
   const me = useMe().data;
@@ -132,7 +167,7 @@ function SosSent({ incidentId }: { incidentId: string }) {
         )}
         <h2 className="text-[28px] font-extrabold">Help is on the way</h2>
         <p className="mt-2 text-[15px] text-white/75">
-          SOS sent at {fmtTime2(inc?.createdAt ?? Date.now())} · <span className="font-mono">{incidentId}</span>.{' '}
+          {t(svc)} alerted at {fmtTime2(inc?.createdAt ?? Date.now())} · <span className="font-mono">{incidentId}</span>.{' '}
           {me?.shareLive ? 'Your live location is being shared with responders.' : `Your location (${shortArea(me?.area.label ?? '')}) was shared with responders.`}
         </p>
         <div className="mt-5 flex flex-col gap-2.5 text-left">
@@ -149,8 +184,7 @@ function SosSent({ incidentId }: { incidentId: string }) {
           {!as.length && <div className="rounded-2xl bg-white/[0.06] px-4 py-3 text-[14px] text-white/75">Your request is queued with the control room. Call 112 if this is life-threatening.</div>}
         </div>
         <div className="mt-6 flex flex-col gap-2.5">
-          {as.some((a) => a.kind === 'ambulance') && <Button size="lg" onClick={() => track('ambulance')}><Route />Track ambulance live</Button>}
-          {as.some((a) => a.kind === 'police') && <Button variant="overlay" size="lg" onClick={() => track('police')}>Track police</Button>}
+          <Button size="lg" onClick={() => track(svc)}><Route />Track {t(svc).toLowerCase()} live</Button>
           <Button variant="overlay" size="lg" onClick={closeOverlay}>Close</Button>
         </div>
         <p className="mt-5 text-[12.5px] text-white/50">Prototype demo — no real emergency service was contacted. In a real emergency call 112.</p>

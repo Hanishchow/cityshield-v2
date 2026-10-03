@@ -99,8 +99,8 @@ export function Settings() {
       <Card className="flex flex-col gap-3 p-4 sm:px-5">
         <Segmented label="Theme" value={ui.theme} onChange={setTheme} options={[{ value: 'light', label: <><Sun />Light</> }, { value: 'dark', label: <><Moon />Dark</> }, { value: 'system', label: <><Settings2 />System</> }]} />
         <div className="flex items-center justify-between gap-3 pt-1">
-          <div><div className="text-[15px] font-semibold">Live map view</div><div className="text-[13.5px] text-fg-2">Auto uses 3D on capable desktops, 2D on phones.</div></div>
-          <Segmented label="Map view" value={ui.mapMode} onChange={(v) => ui.set({ mapMode: v })} options={[{ value: 'auto', label: 'Auto' }, { value: '2d', label: '2D' }, { value: '3d', label: '3D' }]} />
+          <div><div className="text-[15px] font-semibold">Live map view</div><div className="text-[13.5px] text-fg-2">Street map with real roads, or the 3D city.</div></div>
+          <Segmented label="Map view" value={ui.mapMode === '3d' ? '3d' : '2d'} onChange={(v) => ui.set({ mapMode: v })} options={[{ value: '2d', label: 'Street map' }, { value: '3d', label: '3D city' }]} />
         </div>
       </Card>
       <SectionHeader title={t('settings')} />
