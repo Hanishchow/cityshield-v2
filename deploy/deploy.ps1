@@ -29,6 +29,6 @@ rm -rf src && mkdir src && tar -xzf release.tar.gz -C src
 cd src && docker compose --env-file ../.env up -d --build
 docker compose --env-file ../.env ps
 "@
-# bash rejects Windows line endings (`set -e`), so strip CRs before sending.
+# bash rejects Windows line endings (set -e plus a CR), so strip CRs before sending.
 ssh -o BatchMode=yes $Host_ ($remote -replace "`r", '') 2>&1 | ForEach-Object { "$_" }
 Check 'remote build'
