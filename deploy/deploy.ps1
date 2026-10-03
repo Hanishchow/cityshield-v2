@@ -18,7 +18,7 @@ $tar = Join-Path $env:TEMP 'cityshield2.tar.gz'
 git -C $repo archive --format=tar.gz -o $tar HEAD; Check 'git archive'
 ssh -o BatchMode=yes $Host_ "mkdir -p $Dir"
 scp -q $tar "${Host_}:$Dir/release.tar.gz"; Check 'upload'
-ssh -o BatchMode=yes $Host_ @"
+$remote = @"
 set -e
 cd $Dir
 if [ ! -f .env ]; then
@@ -28,5 +28,7 @@ fi
 rm -rf src && mkdir src && tar -xzf release.tar.gz -C src
 cd src && docker compose --env-file ../.env up -d --build
 docker compose --env-file ../.env ps
-"@ 2>&1 | ForEach-Object { "$_" }
+"@
+# bash rejects Windows line endings (`set -e`), so strip CRs before sending.
+ssh -o BatchMode=yes $Host_ ($remote -replace "`r", '') 2>&1 | ForEach-Object { "$_" }
 Check 'remote build'
