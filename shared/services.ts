@@ -89,7 +89,7 @@ export class CityShield {
     if (p.theme) patch.theme = p.theme;
     if (p.prefs) patch.prefs = { ...u.prefs, ...p.prefs };
     if (p.shareLive != null) patch.shareLive = p.shareLive;
-    if (p.area) patch.area = { label: p.area.label, lat: p.area.lat, lng: p.area.lng, accuracyM: p.area.accuracyM ?? null, source: p.area.source ?? 'manual' };
+    if (p.area) patch.area = { label: p.area.label, lat: p.area.lat, lng: p.area.lng, accuracyM: p.area.accuracyM != null ? Math.round(p.area.accuracyM) : null, source: p.area.source ?? 'manual' };
     return (await this.repo.updateUser(userId, patch))!;
   }
 
@@ -129,7 +129,7 @@ export class CityShield {
     }
     const inc: Incident = {
       id, kind, status: assignments.length ? 'en_route' : 'dispatched', userId, title: title ?? policy.title,
-      address: loc.address || user.area.label, lat: at.lat, lng: at.lng, accuracyM: loc.accuracyM ?? null, source: loc.source ?? 'default',
+      address: loc.address || user.area.label, lat: at.lat, lng: at.lng, accuracyM: loc.accuracyM != null ? Math.round(loc.accuracyM) : null, source: loc.source ?? 'default',
       agencies: policy.agencies, assignments, destinationHospitalId: policy.units.includes('ambulance') ? (await this.nearby('hospital', at, 1))[0]?.id ?? null : null,
       createdAt: now, closedAt: null,
     };
@@ -216,7 +216,7 @@ export class CityShield {
   }
   async ping(userId: string, id: string, loc: LocationIn) {
     const i = await this.incident(userId, id);
-    await this.repo.insertPing(i.id, userId, this.now(), { lat: loc.lat, lng: loc.lng, accuracyM: loc.accuracyM ?? null });
+    await this.repo.insertPing(i.id, userId, this.now(), { lat: loc.lat, lng: loc.lng, accuracyM: loc.accuracyM != null ? Math.round(loc.accuracyM) : null });
   }
   async unit(id: string) {
     const u = await this.repo.unitById(id);
@@ -436,8 +436,16 @@ export class CityShield {
   /** City-wide sample data for the Command Centre (public incidents, complaint history). */
   async seedPublic() {
     const now = this.now(), M = 60_000, D = 86_400_000;
-    const existing = await this.repo.incidents({ publicOnly: true, limit: 1 });
-    if (existing.length) return;
+    /* Each part checks for itself, so a seed interrupted half-way completes on the next boot. */
+    const hasPublic = (await this.repo.incidents({ publicOnly: true, since: now - D, limit: 1 })).length > 0;
+    const hasHistory = (await this.repo.responseTimes(now - 60 * D, now - D)).length > 0;
+    const hasComplaints = (await this.repo.complaintStats(startOfDay(now), now - 7 * D)).byArea.length > 0;
+    if (!hasPublic) await this.seedPublicIncidents(now);
+    if (!hasHistory) await this.seedHistory(now);
+    if (!hasComplaints) await this.seedComplaintHistory(now);
+  }
+  private async seedPublicIncidents(now: number) {
+    const M = 60_000;
     const pub: [string, IncidentKind, SPoint, Incident['status'], number, string][] = [
       ['Road accident', 'ambulance', [520, 180], 'on_scene', 2, 'Sony World Junction, Koramangala'],
       ['Fire alarm – commercial building', 'fire', [900, 630], 'en_route', 6, 'HSR Layout, Sector 1'],
@@ -456,19 +464,25 @@ export class CityShield {
         destinationHospitalId: null, createdAt: now - ago * M, closedAt: status === 'resolved' ? now - 20 * M : null,
       });
     }
+  }
+  private async seedHistory(now: number) {
+    const M = 60_000, D = 86_400_000;
     /* 60 days of response history (≈7–9 min now, slower the month before) */
     const r = rng(77);
     for (let i = 0; i < 90; i++) {
       const ago = D + r() * 59 * D, older = ago > 30 * D;
-      const resp = (older ? 470 + r() * 240 : 380 + r() * 170) * 1000;
+      const resp = Math.round((older ? 470 + r() * 240 : 380 + r() * 170) * 1000);
       const id = 'INC-' + (await this.repo.nextId('incident'));
-      const created = now - ago;
+      const created = Math.round(now - ago);
       await this.repo.insertIncident({
         id, kind: 'ambulance', status: 'resolved', userId: null, title: 'Medical emergency', address: 'Bengaluru', ...ANCHOR, accuracyM: 20, source: 'gps',
         agencies: POLICY.ambulance.agencies, destinationHospitalId: null, createdAt: created, closedAt: created + resp + 20 * M,
         assignments: [{ unitId: 'hist', callSign: 'AMB', kind: 'ambulance', originName: 'History', originKind: 'ambulance_base', route: [[0, 0], [1, 0]], dispatchedAt: created, durationMs: resp, etaMin: 8, km: 2, arrivedAt: created + resp, officer: null }],
       });
     }
+  }
+  private async seedComplaintHistory(now: number) {
+    const D = 86_400_000, r = rng(91);
     /* a week of complaints across the zone's wards */
     const weights = [142, 118, 96, 71, 55, 43];
     const batch: Complaint[] = [];
@@ -477,14 +491,14 @@ export class CityShield {
       for (let n = 0; n < weights[w]; n++) {
         const ward = WARDS[w];
         const today = n < Math.round(weights[w] * 0.33);
-        const created = today ? startOfDay(now) + r() * Math.max(1, now - startOfDay(now)) : now - D - r() * 6 * D;
+        const created = Math.round(today ? startOfDay(now) + r() * Math.max(1, now - startOfDay(now)) : now - D - r() * 6 * D);
         const resolved = today ? r() < 0.74 : r() < 0.86;
         const cat = cats[Math.floor(r() * cats.length)];
         const p = WARD_POINTS[ward];
         batch.push({
           id: `CS-H${w}${String(n).padStart(4, '0')}`, userId: null, category: cat, title: `${categoryOf(cat).title} – ${ward}`, description: '', address: `${ward}, Bengaluru`, area: ward,
           ...toLatLng([p[0] + (r() - 0.5) * 120, p[1] + (r() - 0.5) * 120]), status: resolved ? 'resolved' : 'progress', agency: categoryOf(cat).agency,
-          photoUrl: null, art: null, createdAt: created, updatedAt: resolved ? Math.min(now, created + (1 + r() * 5) * 3_600_000) : created,
+          photoUrl: null, art: null, createdAt: created, updatedAt: resolved ? Math.round(Math.min(now, created + (1 + r() * 5) * 3_600_000)) : created,
           timeline: [], crew: null,
         });
       }
