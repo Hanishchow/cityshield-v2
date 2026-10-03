@@ -287,9 +287,11 @@ export class PostgresRepo implements Repo {
   }
   async complaintStats(dayStart: number, weekStart: number) {
     const day = new Date(dayStart), week = new Date(weekStart);
+    /* raw sql fragments bypass column mapping, so dates go in as ISO text */
+    const dayIso = day.toISOString();
     const [c] = await this.db.select({
-      received: sql<number>`count(*) filter (where ${t.complaints.createdAt} >= ${day})`,
-      resolved: sql<number>`count(*) filter (where ${t.complaints.status} = 'resolved' and ${t.complaints.updatedAt} >= ${day})`,
+      received: sql<number>`count(*) filter (where ${t.complaints.createdAt} >= ${dayIso}::timestamptz)`,
+      resolved: sql<number>`count(*) filter (where ${t.complaints.status} = 'resolved' and ${t.complaints.updatedAt} >= ${dayIso}::timestamptz)`,
     }).from(t.complaints);
     const areas = await this.db.select({ area: t.complaints.area, count: sql<number>`count(*)` }).from(t.complaints)
       .where(gte(t.complaints.createdAt, week)).groupBy(t.complaints.area).orderBy(desc(sql`count(*)`));
