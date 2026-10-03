@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en-IN" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>City Shield · Safer Cities. Stronger Communities.</title>
+    <meta name="description" content="City Shield — one-tap emergency help and civic complaints for Bengaluru." />
+    <meta name="theme-color" content="#0B1533" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <script>
+      /* Apply the saved theme before first paint, so dark mode never flashes white. */
+      try {
+        var p = JSON.parse(localStorage.getItem('cs-ui') || '{}').state || {};
+        var t = p.theme || 'system';
+        if (t === 'system') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>City Shield needs JavaScript. In an emergency, call 112.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

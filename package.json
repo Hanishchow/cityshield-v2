@@ -5,34 +5,64 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/prerender.mjs && node scripts/postbuild.mjs",
-    "lint": "oxlint",
-    "test": "node scripts/test-incident.mjs",
+    "dev:api": "npm --workspace api run dev",
+    "build": "vite build && node scripts/postbuild.mjs",
     "preview": "vite preview",
-    "hero:build": "node scripts/hero/generate-frames.mjs && node scripts/hero/encode.mjs",
-    "check:keys": "node scripts/check-keys.mjs",
-    "deploy": "npm run build && node scripts/deploy-pages.mjs",
-    "prototype:build": "node prototype/build.mjs"
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "oxlint",
+    "test": "vitest run",
+    "test:api": "npm --workspace api test",
+    "prototype:build": "node prototype/build.mjs",
+    "brand:icons": "node scripts/brand-icons.mjs"
   },
   "dependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
-    "@fontsource-variable/public-sans": "^5.3.0",
-    "@fontsource-variable/source-serif-4": "^5.3.0",
-    "@fontsource/instrument-serif": "^5.3.0",
+    "@fontsource-variable/noto-sans-devanagari": "^5.3.0",
+    "@fontsource-variable/noto-sans-kannada": "^5.3.0",
+    "@fontsource-variable/noto-sans-tamil": "^5.3.0",
+    "@fontsource-variable/noto-sans-telugu": "^5.3.0",
+    "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
+    "@react-three/postprocessing": "^3.1.3",
+    "@tanstack/react-query": "^5.104.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "lucide-react": "^1.31.0",
+    "motion": "^14.0.0",
+    "postprocessing": "^6.39.5",
+    "radix-ui": "^1.6.7",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.2"
+    "react-router-dom": "^7.18.2",
+    "sonner": "^2.0.8",
+    "tailwind-merge": "^3.7.0",
+    "three": "^0.186.1",
+    "vaul": "^1.1.2",
+    "zod": "^4.6.5",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "@napi-rs/canvas": "^1.0.6",
+    "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "@types/node": "^26.6.4",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.186.0",
     "@vitejs/plugin-react": "^6.0.4",
-    "autoprefixer": "^10.5.4",
+    "jsdom": "^30.1.1",
     "oxlint": "^1.75.0",
-    "postcss": "^8.5.26",
-    "tailwindcss": "^3.4.19",
-    "vite": "^8.2.0"
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.0",
+    "vitest": "^5.0.3"
+  },
+  "workspaces": [
+    "api"
+  ],
+  "engines": {
+    "node": ">=24"
   }
 }

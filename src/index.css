@@ -1,0 +1,255 @@
+@import "tailwindcss";
+
+/* Dark mode follows the resolved theme on <html data-theme>, set before first paint. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* `desk:` = the prototype's desktop breakpoint (sidebar + topbar layout). */
+@theme {
+  --breakpoint-desk: 60rem;
+  --breakpoint-wide: 74rem;
+}
+
+/*
+ * Design tokens.
+ *
+ * Brand colours are sampled from the City Shield logo: a deep navy enamel
+ * shield, cobalt line work, sky-blue highlights and a silver rim. Semantics:
+ *  - red is reserved for SOS / emergency, never for ordinary actions;
+ *  - primary actions are brand cobalt;
+ *  - each service has its own hue that cannot be confused with another:
+ *    police indigo, ambulance rose, fire orange, civic emerald.
+ */
+:root {
+  --navy-950: #050b1e;
+  --navy-900: #0b1533;
+  --navy-850: #0f1c40;
+  --navy-800: #15244f;
+  --navy-700: #1d3366;
+  --ink: #1a2b5f;
+  --cobalt: #2a56c6;
+  --cobalt-hover: #2348a8;
+  --sky: #5b9bea;
+  --silver: #c9d1dc;
+  --steel: #8a95a8;
+
+  --bg: #f3f5f9;
+  --surface: #ffffff;
+  --surface-2: #f6f8fb;
+  --surface-3: #eef1f6;
+  --text: #0d1730;
+  --text-2: #4a5670;
+  --text-3: #7c869a;
+  --border: #e2e7ef;
+  --border-strong: #cfd6e2;
+
+  --primary: var(--cobalt);
+  --primary-hover: var(--cobalt-hover);
+  --primary-soft: #e9effc;
+  --primary-fg: #ffffff;
+  --focus: #3b7be0;
+
+  --sos: #dc2f35;
+  --sos-deep: #a8151c;
+  --sos-soft: #fdecec;
+  --success: #0e8a4f;
+  --success-soft: #e3f4ea;
+  --warning: #b45309;
+  --warning-soft: #fef3d7;
+
+  --police: #4f46e5;
+  --police-soft: #eceafd;
+  --ambulance: #e0284f;
+  --ambulance-soft: #fde8ee;
+  --fire: #ea580c;
+  --fire-soft: #feeee3;
+  --civic: #059669;
+  --civic-soft: #e2f5ee;
+  --crew: #d97706;
+  --crew-soft: #fef3e0;
+
+  --map-land: #edf0f5;
+  --map-block: #dfe4ec;
+  --map-road: #ffffff;
+  --map-casing: #d2d9e3;
+  --map-park: #cfead7;
+  --map-tree: #b5dcc1;
+  --map-water: #bcdbf4;
+  --map-label: #6f7c92;
+  --map-halo: #edf0f5;
+
+  --shadow-sm: 0 1px 2px rgb(13 23 48 / 0.05);
+  --shadow: 0 1px 2px rgb(13 23 48 / 0.04), 0 4px 16px -2px rgb(13 23 48 / 0.07);
+  --shadow-lg: 0 2px 6px rgb(13 23 48 / 0.06), 0 18px 48px -8px rgb(13 23 48 / 0.18);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #060c1f;
+  --surface: #0d1631;
+  --surface-2: #111c3b;
+  --surface-3: #16234a;
+  --text: #e8edf7;
+  --text-2: #a7b2c7;
+  --text-3: #77839b;
+  --border: #1c2849;
+  --border-strong: #273560;
+
+  --primary: #5b86f0;
+  --primary-hover: #7399f3;
+  --primary-soft: #16255a;
+  --focus: #7aa9f2;
+
+  --sos: #f0484e;
+  --sos-soft: #3a141d;
+  --success: #34c27c;
+  --success-soft: #0d3125;
+  --warning: #e8a43a;
+  --warning-soft: #392a0d;
+
+  --police: #8b86f7;
+  --police-soft: #1f1f52;
+  --ambulance: #f2577a;
+  --ambulance-soft: #3a1426;
+  --fire: #f7844a;
+  --fire-soft: #3b1d10;
+  --civic: #34c28d;
+  --civic-soft: #0c3126;
+  --crew: #f0a33b;
+  --crew-soft: #37280d;
+
+  --map-land: #111d3c;
+  --map-block: #18264b;
+  --map-road: #283a66;
+  --map-casing: #0b1530;
+  --map-park: #13372d;
+  --map-tree: #1a4838;
+  --map-water: #143a63;
+  --map-label: #8b98b6;
+  --map-halo: #111d3c;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px -4px rgb(0 0 0 / 0.35);
+  --shadow-lg: 0 2px 6px rgb(0 0 0 / 0.35), 0 24px 56px -8px rgb(0 0 0 / 0.55);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: "Plus Jakarta Sans Variable", "Noto Sans Kannada Variable", "Noto Sans Devanagari Variable",
+    "Noto Sans Tamil Variable", "Noto Sans Telugu Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-navy-950: var(--navy-950);
+  --color-navy-900: var(--navy-900);
+  --color-navy-850: var(--navy-850);
+  --color-navy-800: var(--navy-800);
+  --color-navy-700: var(--navy-700);
+  --color-ink: var(--ink);
+  --color-cobalt: var(--cobalt);
+  --color-sky: var(--sky);
+  --color-silver: var(--silver);
+  --color-steel: var(--steel);
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-fg: var(--text);
+  --color-fg-2: var(--text-2);
+  --color-fg-3: var(--text-3);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-fg: var(--primary-fg);
+  --color-focus: var(--focus);
+
+  --color-sos: var(--sos);
+  --color-sos-deep: var(--sos-deep);
+  --color-sos-soft: var(--sos-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+
+  --color-police: var(--police);
+  --color-police-soft: var(--police-soft);
+  --color-ambulance: var(--ambulance);
+  --color-ambulance-soft: var(--ambulance-soft);
+  --color-fire: var(--fire);
+  --color-fire-soft: var(--fire-soft);
+  --color-civic: var(--civic);
+  --color-civic-soft: var(--civic-soft);
+  --color-crew: var(--crew);
+  --color-crew-soft: var(--crew-soft);
+
+  --radius-card: 16px;
+  --shadow-card: var(--shadow);
+  --shadow-soft: var(--shadow-sm);
+  --shadow-float: var(--shadow-lg);
+
+  --animate-pulse-ring: pulse-ring 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  --animate-live: live 1.6s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.85); opacity: 0.55; }
+  100% { transform: scale(1.65); opacity: 0; }
+}
+@keyframes live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+@layer base {
+  html, body, #root { height: 100%; }
+  html { background: var(--navy-900); }
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    font-feature-settings: "cv11", "ss01";
+  }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2.5px solid var(--focus); outline-offset: 2px; }
+  ::selection { background: color-mix(in oklab, var(--primary) 25%, transparent); }
+}
+
+@layer utilities {
+  .tabular { font-variant-numeric: tabular-nums; }
+  .safe-b { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-t { padding-top: env(safe-area-inset-top, 0px); }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .bevel {
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), inset 0 0 0 1px rgb(201 209 220 / 0.14);
+  }
+}
+
+/* 2D map (SVG) */
+.m-land { fill: var(--map-land); }
+.m-blk { fill: var(--map-block); }
+.m-park { fill: var(--map-park); }
+.m-tree { fill: var(--map-tree); }
+.m-water { fill: var(--map-water); }
+.m-road { fill: none; stroke: var(--map-road); stroke-linecap: butt; }
+.m-cas { fill: none; stroke: var(--map-casing); stroke-linecap: butt; }
+.m-lbl { fill: var(--map-label); font-family: var(--font-sans); font-weight: 700; paint-order: stroke; stroke: var(--map-halo); stroke-linejoin: round; letter-spacing: 0.07em; }
+.m-rl { font-weight: 600; font-style: italic; letter-spacing: 0; }
+.m-wl { fill: var(--primary); font-style: italic; font-weight: 600; letter-spacing: 0; }
+.m-pulse { transform-box: fill-box; transform-origin: center; animation: pulse-ring 2.2s ease-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}

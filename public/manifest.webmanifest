@@ -1,0 +1,20 @@
+{
+  "name": "City Shield",
+  "short_name": "City Shield",
+  "description": "One-tap emergency help and civic complaints for Bengaluru.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0B1533",
+  "theme_color": "#0B1533",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    { "name": "Emergency SOS", "url": "./sos" },
+    { "name": "Report a complaint", "url": "./complaints" }
+  ]
+}
