@@ -47,6 +47,21 @@ services:
     ports:
       - "${API_BIND:-127.0.0.1:8788}:8787"
 
+  # Public HTTPS entry point for the API, kept online by Docker (restarts on
+  # crash and on reboot). deploy.ps1 enables the "tunnel" profile once
+  # NGROK_AUTHTOKEN and NGROK_DOMAIN (your free static domain) are in .env.
+  tunnel:
+    image: ngrok/ngrok:3
+    container_name: cityshield2-tunnel
+    profiles: [tunnel]
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN:-}
+    command: ["http", "api:8787", "--url=${NGROK_DOMAIN:-}", "--log=stdout"]
+
 volumes:
   db:
   uploads:

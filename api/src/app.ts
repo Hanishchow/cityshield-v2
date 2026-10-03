@@ -226,17 +226,17 @@ export async function buildApp({ repo, logger = true, now }: AppDeps) {
       const beat = setInterval(() => res.write(': ping\n\n'), 25_000);
       req.raw.on('close', () => { clearInterval(beat); off(); });
     };
-    const tokenUser = (q: unknown) => {
-      const t = (q as { token?: string }).token;
+    const tokenUser = (q: unknown, auth?: string) => {
+      const t = (q as { token?: string }).token ?? (auth?.startsWith('Bearer ') ? auth.slice(7) : undefined);
       if (!t) throw new HttpError(401, 'Sign-in required');
       try { return app.jwt.verify<{ sub: string; role: Role }>(t); } catch { throw new HttpError(401, 'Session expired'); }
     };
-    r.get('/stream', { schema: { tags: ['live'], querystring: z.object({ token: z.string() }) }, config: { rateLimit: false } }, async (req, reply) => {
-      const u = tokenUser(req.query);
+    r.get('/stream', { schema: { tags: ['live'], querystring: z.object({ token: z.string().optional() }) }, config: { rateLimit: false } }, async (req, reply) => {
+      const u = tokenUser(req.query, req.headers.authorization);
       sse(req, reply, (send) => hub.subscribe(u.sub, send));
     });
     r.get('/ops/stream', { schema: { tags: ['live'], querystring: z.object({ token: z.string().optional() }) }, config: { rateLimit: false } }, async (req, reply) => {
-      if (!config.demo) { const u = tokenUser(req.query); if (!(await svc.isOps(u.sub))) throw new HttpError(403, 'Command Centre access only'); }
+      if (!config.demo) { const u = tokenUser(req.query, req.headers.authorization); if (!(await svc.isOps(u.sub))) throw new HttpError(403, 'Command Centre access only'); }
       sse(req, reply, (send) => hub.subscribeOps(send));
     });
   }, { prefix: '/v1' });

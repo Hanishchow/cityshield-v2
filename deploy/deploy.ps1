@@ -26,8 +26,10 @@ if [ ! -f .env ]; then
   printf 'POSTGRES_PASSWORD=%s\nJWT_SECRET=%s\nAPI_BIND=127.0.0.1:8788\nDEMO_MODE=true\nSECONDS_PER_MINUTE=12\n' "`$(openssl rand -hex 24)" "`$(openssl rand -hex 32)" > .env
 fi
 rm -rf src && mkdir src && tar -xzf release.tar.gz -C src
-cd src && docker compose --env-file ../.env up -d --build
-docker compose --env-file ../.env ps
+cd src
+PROFILE=""; grep -q "^NGROK_AUTHTOKEN=." ../.env && grep -q "^NGROK_DOMAIN=." ../.env && PROFILE="--profile tunnel"
+docker compose --env-file ../.env $PROFILE up -d --build
+docker compose --env-file ../.env $PROFILE ps
 "@
 # bash rejects Windows line endings (set -e plus a CR), so strip CRs before sending.
 ssh -o BatchMode=yes $Host_ ($remote -replace "`r", '') 2>&1 | ForEach-Object { "$_" }

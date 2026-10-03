@@ -6,8 +6,14 @@ const BASE = (import.meta.env.VITE_API_BASE as string | undefined)?.replace(/\/$
 
 type Json = Record<string, unknown> | unknown[] | undefined;
 
+/**
+ * Sent on every request. Free ngrok tunnels answer browser requests with an
+ * HTML warning page unless this header is present; elsewhere it is ignored.
+ */
+export const TUNNEL_HEADERS: Record<string, string> = { 'ngrok-skip-browser-warning': '1' };
+
 async function call<T>(method: string, path: string, body?: Json | FormData, headers: Record<string, string> = {}): Promise<T> {
-  const h: Record<string, string> = { ...headers };
+  const h: Record<string, string> = { ...TUNNEL_HEADERS, ...headers };
   const tok = getToken('live');
   if (tok) h.authorization = `Bearer ${tok}`;
   let payload: BodyInit | undefined;
@@ -22,26 +28,50 @@ async function call<T>(method: string, path: string, body?: Json | FormData, hea
 const get = <T,>(p: string) => call<T>('GET', p);
 const items = async <T,>(p: string) => (await get<{ items: T[] }>(p)).items;
 
-/** One EventSource per stream, shared by every subscriber, reconnecting with backoff. */
+/**
+ * Server-Sent Events over fetch() rather than EventSource: EventSource cannot
+ * send headers, so it could neither authenticate with a bearer token nor pass
+ * the tunnel header above. One connection per stream, shared by every
+ * subscriber, reconnecting with backoff.
+ */
 function stream(path: string) {
   const subs = new Set<(e: StreamEvent) => void>();
-  let es: EventSource | null = null, retry = 0, timer: ReturnType<typeof setTimeout> | null = null;
-  const open = () => {
+  let ctl: AbortController | null = null, retry = 0, timer: ReturnType<typeof setTimeout> | null = null;
+  const schedule = () => {
+    ctl = null;
+    if (!subs.size) return;
+    timer = setTimeout(() => { timer = null; void open(); }, Math.min(15_000, 1000 * 2 ** retry++));
+  };
+  const open = async () => {
+    const c = new AbortController(); ctl = c;
     const tok = getToken('live');
-    es = new EventSource(`${BASE}${path}${tok ? `?token=${encodeURIComponent(tok)}` : ''}`);
-    es.onmessage = (m) => { retry = 0; try { const ev = JSON.parse(m.data) as StreamEvent; subs.forEach((s) => s(ev)); } catch { /* ignore */ } };
-    es.onerror = () => {
-      es?.close(); es = null;
-      if (!subs.size) return;
-      timer = setTimeout(open, Math.min(15_000, 1000 * 2 ** retry++));
-    };
+    try {
+      const res = await fetch(BASE + path, { headers: { ...TUNNEL_HEADERS, accept: 'text/event-stream', ...(tok ? { authorization: `Bearer ${tok}` } : {}) }, signal: c.signal, cache: 'no-store' });
+      if (!res.ok || !res.body) throw new Error(`stream ${res.status}`);
+      const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+      let buf = '';
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        retry = 0;
+        buf += value;
+        let i: number;
+        while ((i = buf.indexOf('\n\n')) >= 0) {
+          const block = buf.slice(0, i); buf = buf.slice(i + 2);
+          const data = block.split('\n').filter((l) => l.startsWith('data:')).map((l) => l.slice(5).trimStart()).join('\n');
+          if (!data) continue;
+          try { const ev = JSON.parse(data) as StreamEvent; subs.forEach((s) => s(ev)); } catch { /* ignore malformed */ }
+        }
+      }
+    } catch { /* network error or abort */ }
+    if (ctl === c) schedule();
   };
   return (cb: (e: StreamEvent) => void) => {
     subs.add(cb);
-    if (!es && !timer) open();
+    if (!ctl && !timer) void open();
     return () => {
       subs.delete(cb);
-      if (!subs.size) { es?.close(); es = null; if (timer) clearTimeout(timer); timer = null; }
+      if (!subs.size) { const c = ctl; ctl = null; c?.abort(); if (timer) clearTimeout(timer); timer = null; }
     };
   };
 }

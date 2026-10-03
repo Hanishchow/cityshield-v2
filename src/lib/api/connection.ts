@@ -31,7 +31,7 @@ async function probe(): Promise<Health | null> {
   const t = setTimeout(() => ctl.abort(), PROBE_MS);
   try {
     const base = (import.meta.env.VITE_API_BASE as string | undefined)?.replace(/\/$/, '') ?? '';
-    const r = await fetch(base + '/health', { signal: ctl.signal, cache: 'no-store' });
+    const r = await fetch(base + '/health', { signal: ctl.signal, cache: 'no-store', headers: { 'ngrok-skip-browser-warning': '1' } });
     if (!r.ok) return null;
     const h = (await r.json()) as Health;
     return h && h.ok ? h : null;
