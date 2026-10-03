@@ -77,7 +77,7 @@ export class PostgresRepo implements Repo {
   }
   async insertUser(u: User, deviceId: string | null) {
     await this.db.transaction(async (tx) => {
-      await tx.insert(t.users).values({ id: u.id, createdAt: new Date(u.createdAt), ...(fromUser(u) as Required<ReturnType<typeof fromUser>>) });
+      await tx.insert(t.users).values({ ...(fromUser(u) as Required<ReturnType<typeof fromUser>>), id: u.id, createdAt: new Date(u.createdAt) });
       if (deviceId) await tx.insert(t.devices).values({ deviceId, userId: u.id }).onConflictDoUpdate({ target: t.devices.deviceId, set: { userId: u.id } });
     });
     return u;

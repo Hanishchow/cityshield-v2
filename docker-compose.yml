@@ -1,0 +1,52 @@
+# City Shield v2 backend: API + Postgres/PostGIS.
+#   cp deploy/.env.example deploy/.env   # then fill secrets
+#   docker compose --env-file deploy/.env up -d --build
+# The API is published on API_BIND (default 127.0.0.1:8788). Point the web app
+# at it with API_ORIGIN (Vite dev proxy) or VITE_API_BASE (production build).
+name: cityshield2
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: cityshield2-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cityshield
+      POSTGRES_USER: cityshield
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cityshield -d cityshield"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    image: cityshield2-api:latest
+    container_name: cityshield2-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://cityshield:${POSTGRES_PASSWORD}@db:5432/cityshield?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5178,http://localhost:4178}
+      DEMO_MODE: ${DEMO_MODE:-true}
+      SECONDS_PER_MINUTE: ${SECONDS_PER_MINUTE:-12}
+      MAPPLS_CLIENT_ID: ${MAPPLS_CLIENT_ID:-}
+      MAPPLS_CLIENT_SECRET: ${MAPPLS_CLIENT_SECRET:-}
+      OLA_MAPS_API_KEY: ${OLA_MAPS_API_KEY:-}
+      TRUST_PROXY: ${TRUST_PROXY:-}
+    volumes:
+      - uploads:/data/uploads
+    ports:
+      - "${API_BIND:-127.0.0.1:8788}:8787"
+
+volumes:
+  db:
+  uploads:

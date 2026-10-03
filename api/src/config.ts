@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+
 /**
  * Configuration. Hard rule: the API boots and serves every route with ZERO
  * environment variables. Missing credentials degrade a capability to a
@@ -27,7 +29,7 @@ export const config = {
   mapplsClientId: str('MAPPLS_CLIENT_ID'),
   mapplsClientSecret: str('MAPPLS_CLIENT_SECRET'),
   olaKey: str('OLA_MAPS_API_KEY'),
-  uploadDir: str('UPLOAD_DIR') ?? new URL('../uploads/', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'),
+  uploadDir: str('UPLOAD_DIR') ?? fileURLToPath(new URL('../uploads/', import.meta.url)),
   maxUploadBytes: num('MAX_UPLOAD_BYTES', 5 * 1024 * 1024),
   /** Who may set X-Forwarded-For (the rate limiter keys on client IP). */
   trustProxy: ((): boolean | number | string => {

@@ -32,6 +32,7 @@
     "fastify-type-provider-zod": "^7.0.0",
     "postgres": "^3.4.9",
     "sharp": "^0.35.5",
-    "tsx": "^4.23.15"
+    "tsx": "^4.23.15",
+    "zod": "^4.6.5"
   }
 }

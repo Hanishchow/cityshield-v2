@@ -4,27 +4,25 @@ node_modules/
 # Build output
 dist/
 
-# Environment files
+# Environment & secrets
 .env
 .env.local
 .env.*.local
+api/.env
+deploy/.env
 
-# IDE / Editor
+# Runtime data
+api/uploads/
+
+# IDE / OS
 .vscode/
 .idea/
 *.swp
-*.swo
-*~
-
-# OS files
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Logs
+# Logs & caches
 *.log
 npm-debug.log*
-
-# Cache
 .cache/
-.eslint-cache
