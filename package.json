@@ -1,0 +1,38 @@
+{
+  "name": "city-shield-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/prerender.mjs && node scripts/postbuild.mjs",
+    "lint": "oxlint",
+    "test": "node scripts/test-incident.mjs",
+    "preview": "vite preview",
+    "hero:build": "node scripts/hero/generate-frames.mjs && node scripts/hero/encode.mjs",
+    "check:keys": "node scripts/check-keys.mjs",
+    "deploy": "npm run build && node scripts/deploy-pages.mjs",
+    "prototype:build": "node prototype/build.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/public-sans": "^5.3.0",
+    "@fontsource-variable/source-serif-4": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
+    "lucide-react": "^1.31.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.2"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "^1.0.6",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "autoprefixer": "^10.5.4",
+    "oxlint": "^1.75.0",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^3.4.19",
+    "vite": "^8.2.0"
+  }
+}
