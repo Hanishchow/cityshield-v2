@@ -37,6 +37,8 @@ jobs:
           # Served from https://<owner>.github.io/<repo>/
           BASE_PATH: /${{ github.event.repository.name }}/
           VITE_API_BASE: ${{ vars.API_BASE }}
+          VITE_RELEASE: ${{ github.sha }}
+          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

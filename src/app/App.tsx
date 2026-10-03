@@ -7,6 +7,7 @@ import { Tooltip } from 'radix-ui';
 import { initConnection, onBackendSwitch, useConn } from '@/lib/api/connection.ts';
 import { useLiveBridge, useMe } from '@/lib/api/hooks.ts';
 import { useAutoLocate } from '@/lib/useLocateMe.ts';
+import { reportError } from '@/lib/errorReport.ts';
 import { resolvedTheme, useUI } from '@/store/ui.ts';
 import { ShieldMark } from '@/components/brand/Logo.tsx';
 import { Skeleton } from '@/components/ui/controls.tsx';
@@ -40,6 +41,7 @@ onBackendSwitch(() => { qc.clear(); });
 class RouteBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   state = { error: null as Error | null };
   static getDerivedStateFromError(error: Error) { return { error }; }
+  componentDidCatch(error: Error) { reportError('boundary', error); }
   render() {
     if (!this.state.error) return this.props.children;
     return (

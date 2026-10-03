@@ -7,6 +7,9 @@ import './index.css';
 import App from './app/App.tsx';
 import { registerServiceWorker } from './lib/pwa.ts';
 import { useUI } from './store/ui.ts';
+import { installErrorReporting } from './lib/errorReport.ts';
+
+installErrorReporting();
 
 /* Indic scripts load on demand: only when the user picks that language. */
 const INDIC = {

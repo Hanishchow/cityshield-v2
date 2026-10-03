@@ -114,3 +114,35 @@ test('command centre KPIs reflect seeded city data', async () => {
   const wards = (await app.inject('/v1/ops/wards')).json().items;
   assert.equal(wards[0].area, 'Koramangala');
 });
+
+test('GraphQL: queries and mutation share REST auth and services', async () => {
+  const { app, auth } = await setup();
+  const gql = (query: string, headers = auth) => app.inject({ method: 'POST', url: '/graphql', headers, payload: { query } });
+  const q = (await gql('{ me { name area { label } } complaints { id status } opsKpis { activeIncidents } }')).json();
+  assert.equal(q.errors, undefined, JSON.stringify(q.errors));
+  assert.equal(q.data.me.name, 'Shreyas Jayanna');
+  assert.equal(q.data.complaints.length, 3);
+  assert.ok(q.data.opsKpis.activeIncidents >= 5);
+  const m = (await gql('mutation { requestService(kind: "police", lat: 12.9352, lng: 77.6245) { id assignments { callSign kind } } }')).json();
+  assert.equal(m.errors, undefined, JSON.stringify(m.errors));
+  assert.equal(m.data.requestService.assignments[0].kind, 'police');
+  const anon = (await gql('{ me { name } }', {} as typeof auth)).json();
+  assert.match(anon.errors[0].message, /Sign-in required/);
+});
+
+test('responses are compressed and live data is never cached', async () => {
+  const { app, auth } = await setup();
+  const r = await app.inject({ url: '/v1/ops/incidents', headers: { ...auth, 'accept-encoding': 'br, gzip' } });
+  assert.ok(['br', 'gzip'].includes(String(r.headers['content-encoding'])), `encoding=${r.headers['content-encoding']}`);
+  assert.equal(r.headers['cache-control'], 'no-store');
+  const n = await app.inject({ url: '/v1/nearby/hospitals?lat=12.9352&lng=77.6245' });
+  assert.equal(n.headers['cache-control'], 'private, max-age=300');
+});
+
+test('client error reports are accepted and validated', async () => {
+  const { app } = await setup();
+  const ok = await app.inject({ method: 'POST', url: '/v1/client-errors', payload: { source: 'error', message: 'boom', url: '/sos' } });
+  assert.equal(ok.statusCode, 204);
+  const bad = await app.inject({ method: 'POST', url: '/v1/client-errors', payload: { source: 'nope', message: 'x' } });
+  assert.equal(bad.statusCode, 400);
+});

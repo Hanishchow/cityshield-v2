@@ -76,9 +76,11 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname.includes('/demo/')) return;
 
   /* Anything reporting live state is never served from cache. */
-  if (url.pathname.includes('/v1/') || url.pathname.endsWith('/health')) return;
+  if (url.pathname.includes('/v1/') || url.pathname.endsWith('/health') || url.pathname.endsWith('/graphql')) return;
+  /* Road routes are live lookups too. */
+  if (url.hostname === 'router.project-osrm.org') return;
 
-  if (url.hostname.endsWith('maptiler.com') || url.hostname.endsWith('mappls.com')) {
+  if (url.hostname.endsWith('tile.openstreetmap.org') || url.hostname.endsWith('maptiler.com') || url.hostname.endsWith('mappls.com')) {
     event.respondWith(
       caches.open(TILES).then(async (cache) => {
         const hit = await cache.match(request);

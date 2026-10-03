@@ -6,6 +6,7 @@ import { createHash, randomInt, randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from 'fastify';
+import compress from '@fastify/compress';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import jwt from '@fastify/jwt';
@@ -26,6 +27,7 @@ import type { Repo } from '../../shared/repo.ts';
 import { config, geocoder } from './config.ts';
 import { Hub } from './hub.ts';
 import { reverseGeocode, searchPlaces } from './providers/geo.ts';
+import { registerGraphql } from './graphql.ts';
 
 declare module '@fastify/jwt' {
   interface FastifyJWT { payload: { sub: string; role: Role }; user: { sub: string; role: Role } }
@@ -57,6 +59,18 @@ export async function buildApp({ repo, logger = true, now }: AppDeps) {
   });
 
   await app.register(helmet, { contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'cross-origin' } });
+  /* gzip / brotli for JSON over ~1 KB. SSE replies are hijacked and stay uncompressed (streaming). */
+  await app.register(compress, { global: true, threshold: 1024, encodings: ['br', 'gzip', 'deflate'] });
+  /* Caching: live data must never be served stale from a cache (an "ambulance en route" for a
+     cancelled incident is worse than nothing). Only slow-changing lookups get a short cache. */
+  app.addHook('onSend', async (req, reply, payload) => {
+    if (reply.getHeader('cache-control')) return payload;
+    const url = req.url;
+    if (req.method === 'GET' && /^\/v1\/(nearby|geo)\//.test(url)) reply.header('cache-control', 'private, max-age=300');
+    else if (url.startsWith('/v1/media/')) { /* static plugin sets immutable caching */ }
+    else if (url.startsWith('/v1') || url.startsWith('/health') || url.startsWith('/graphql')) reply.header('cache-control', 'no-store');
+    return payload;
+  });
   await app.register(cors, { origin: config.corsOrigins, credentials: true });
   /* 120/min per IP — except SOS (see the route): throttling someone panic-tapping an emergency button is the wrong failure mode. */
   await app.register(rateLimit, { max: 120, timeWindow: '1 minute' });
@@ -97,6 +111,8 @@ export async function buildApp({ repo, logger = true, now }: AppDeps) {
     ok: true, store: repo.kind, demo: config.demo, serverTime: Date.now(), uptimeSeconds: Math.round((Date.now() - started) / 1000),
     capabilities: { geocode: geocoder(), dispatch: 'simulated', notify: 'mock', telephony: 'simulated' }, openStreams: hub.openStreams,
   }));
+
+  await registerGraphql(app as unknown as FastifyInstance, svc, repo.kind);
 
   await app.register(async (v1) => {
     const r = v1.withTypeProvider<ZodTypeProvider>();
@@ -201,6 +217,20 @@ export async function buildApp({ repo, logger = true, now }: AppDeps) {
     r.post('/feedback', { schema: { tags: ['account'], body: FeedbackIn } }, async (req, reply) => {
       let uid: string | null = null; try { uid = await user(req); } catch { /* anonymous feedback is fine */ }
       await repo.insertFeedback(uid, req.body.message, Date.now());
+      return reply.code(204).send();
+    });
+
+    /* ----- client error reports (browser crashes / unhandled rejections) ----- */
+    r.post('/client-errors', {
+      schema: { tags: ['system'], body: z.object({
+        message: z.string().max(500), stack: z.string().max(4000).optional(), url: z.string().max(500).optional(),
+        source: z.enum(['error', 'unhandledrejection', 'boundary']), release: z.string().max(60).optional(), ua: z.string().max(300).optional(),
+      }) },
+      config: { rateLimit: { max: 20, timeWindow: '1 minute' } },
+    }, async (req, reply) => {
+      let uid: string | null = null; try { await req.jwtVerify(); uid = req.user.sub; } catch { /* anonymous */ }
+      req.log.warn({ clientError: { ...req.body, user: uid } }, `client ${req.body.source}: ${req.body.message}`);
+      await repo.audit({ at: Date.now(), actor: uid, action: 'client.error', entity: req.body.source, data: { message: req.body.message, url: req.body.url, release: req.body.release } }).catch(() => {});
       return reply.code(204).send();
     });
 

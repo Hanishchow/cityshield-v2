@@ -1,0 +1,38 @@
+# Continuous integration: every push and pull request is type-checked, linted,
+# tested and built. Deployment happens separately (pages.yml for the web app,
+# deploy/deploy.ps1 for the API on celure).
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Typecheck (web + shared)
+        run: npm run typecheck
+      - name: Typecheck (api)
+        run: npm --workspace api run typecheck
+      - name: Lint
+        run: npx oxlint src shared api/src
+      - name: API tests
+        run: npm --workspace api test
+      - name: Build
+        run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+      - name: Docker image builds
+        run: docker build -f api/Dockerfile -t cityshield-api:ci .
