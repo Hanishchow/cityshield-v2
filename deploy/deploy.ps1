@@ -31,6 +31,9 @@ CS_PROFILE=""; grep -q "^NGROK_AUTHTOKEN=." ../.env && grep -q "^NGROK_DOMAIN=."
 docker compose --env-file ../.env `$CS_PROFILE up -d --build
 docker compose --env-file ../.env `$CS_PROFILE ps
 "@
-# bash rejects Windows line endings (set -e plus a CR), so strip CRs before sending.
-ssh -o BatchMode=yes $Host_ ($remote -replace "`r", '') 2>&1 | ForEach-Object { "$_" }
+# bash rejects Windows line endings (set -e plus a CR), so CRs are stripped too.
+# Windows PowerShell mangles embedded double quotes when passing arguments to
+# native programs, so the script travels base64-encoded and is decoded remotely.
+$b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(($remote -replace "`r", '')))
+ssh -o BatchMode=yes $Host_ "echo $b64 | base64 -d | bash" 2>&1 | ForEach-Object { "$_" }
 Check 'remote build'
