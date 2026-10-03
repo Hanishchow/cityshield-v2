@@ -7,14 +7,17 @@
   (/srv/celure/cityshield) is not touched.
 #>
 param([string]$Host_ = 'celure', [string]$Dir = '/srv/celure/cityshield2')
-$ErrorActionPreference = 'Stop'
+# Native tools (docker, ssh) write progress to stderr; Windows PowerShell 5.1
+# would treat that as fatal under 'Stop', so failures are checked via exit codes.
+$ErrorActionPreference = 'Continue'
+function Check($what) { if ($LASTEXITCODE -ne 0) { throw "$what failed (exit $LASTEXITCODE)" } }
 $repo = Split-Path -Parent $PSScriptRoot
 $dirty = git -C $repo status --porcelain
 if ($dirty) { Write-Warning 'Uncommitted changes are NOT deployed (git archive ships HEAD).' }
 $tar = Join-Path $env:TEMP 'cityshield2.tar.gz'
-git -C $repo archive --format=tar.gz -o $tar HEAD
+git -C $repo archive --format=tar.gz -o $tar HEAD; Check 'git archive'
 ssh -o BatchMode=yes $Host_ "mkdir -p $Dir"
-scp -q $tar "${Host_}:$Dir/release.tar.gz"
+scp -q $tar "${Host_}:$Dir/release.tar.gz"; Check 'upload'
 ssh -o BatchMode=yes $Host_ @"
 set -e
 cd $Dir
@@ -25,4 +28,5 @@ fi
 rm -rf src && mkdir src && tar -xzf release.tar.gz -C src
 cd src && docker compose --env-file ../.env up -d --build
 docker compose --env-file ../.env ps
-"@
+"@ 2>&1 | ForEach-Object { "$_" }
+Check 'remote build'
