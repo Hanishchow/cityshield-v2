@@ -1,5 +1,5 @@
 /// <reference types="vitest/config" />
-import { defineConfig, type Connect, type Plugin } from 'vite';
+import { defineConfig, loadEnv, type Connect, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
@@ -33,15 +33,19 @@ const demoIndex = (): Plugin => {
   };
 };
 
-/** The API (api/, Fastify) listens on 8787. Proxying keeps calls same-origin. */
-const API = process.env.API_ORIGIN ?? 'http://127.0.0.1:8787';
-const proxy = {
-  '/v1': { target: API, changeOrigin: false },
-  '/health': { target: API },
-  '/docs': { target: API },
-};
-
-export default defineConfig(({ command }) => ({
+/**
+ * Where the dev/preview servers proxy /v1, /health and /docs. Default: a local
+ * API on 8787. Set API_ORIGIN in .env.local to use a remote one, e.g. the
+ * celure deployment: API_ORIGIN=http://100.93.157.65:8788
+ */
+export default defineConfig(({ command, mode }) => {
+  const API = loadEnv(mode, fileURLToPath(new URL('.', import.meta.url)), '').API_ORIGIN || 'http://127.0.0.1:8787';
+  const proxy = {
+    '/v1': { target: API, changeOrigin: true },
+    '/health': { target: API, changeOrigin: true },
+    '/docs': { target: API, changeOrigin: true },
+  };
+  return {
   base: process.env.BASE_PATH ?? (command === 'build' ? '/cityshield/' : '/'),
   plugins: [react(), tailwindcss(), demoIndex()],
   resolve: {
@@ -67,4 +71,5 @@ export default defineConfig(({ command }) => ({
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}', 'shared/**/*.test.ts'],
   },
-}));
+  };
+});
