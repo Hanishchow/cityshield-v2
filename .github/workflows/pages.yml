@@ -4,6 +4,7 @@
 #   Settings → Pages → Source: "GitHub Actions"
 #   Settings → Secrets and variables → Actions → Variables:
 #     API_BASE = https://<your-static-domain>.ngrok-free.app   (the backend tunnel)
+#     BASE_PATH / SITE_URL = only for a custom domain, e.g. / and https://cityshield.live/
 # Without API_BASE the site still works, in offline demo mode.
 name: Deploy to GitHub Pages
 
@@ -34,11 +35,12 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
         env:
-          # Served from https://<owner>.github.io/<repo>/
-          BASE_PATH: /${{ github.event.repository.name }}/
+          # Default: https://<owner>.github.io/<repo>/. With a custom domain set the
+          # repo variables BASE_PATH=/ and SITE_URL=https://cityshield.live/
+          BASE_PATH: ${{ vars.BASE_PATH || format('/{0}/', github.event.repository.name) }}
           VITE_API_BASE: ${{ vars.API_BASE }}
           VITE_RELEASE: ${{ github.sha }}
-          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
