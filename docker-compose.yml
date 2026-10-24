@@ -1,9 +1,10 @@
-# City Shield v2, the whole system: web app + API + Postgres/PostGIS.
+# City Shield v2 server side: API + Postgres/PostGIS. The web app is served by
+# GitHub Pages; the "web" profile can also serve it from this host if needed.
 #   cp deploy/.env.example deploy/.env   # then fill secrets
 #   docker compose --env-file deploy/.env up -d --build
-# The web app (same origin as the API) is published on WEB_BIND (default
-# 127.0.0.1:8789); the API alone on API_BIND (default 127.0.0.1:8788).
-# RELEASE tags both images so deploy/ops.ps1 can roll back to a previous build.
+# The API is published on API_BIND (default 127.0.0.1:8788); the optional web
+# app (same origin as the API) on WEB_BIND (default 127.0.0.1:8789).
+# RELEASE tags the images so deploy/ops.ps1 can roll back to a previous build.
 name: cityshield2
 services:
   db:
@@ -57,6 +58,8 @@ services:
         VITE_RELEASE: ${RELEASE:-local}
     image: cityshield2-web:${RELEASE:-latest}
     container_name: cityshield2-web
+    # Off by default (the site is on GitHub Pages); WEB_ENABLED=true in .env turns it on.
+    profiles: [web]
     restart: unless-stopped
     depends_on:
       api:
@@ -64,16 +67,14 @@ services:
     ports:
       - "${WEB_BIND:-127.0.0.1:8789}:80"
 
-  # Public HTTPS entry for cityshield.live via Cloudflare Tunnel (outbound only,
-  # works behind NAT). Enabled once CF_TUNNEL_TOKEN is in .env; the hostname ->
-  # http://web:80 route is set in the Cloudflare dashboard.
+  # Optional public HTTPS entry via Cloudflare Tunnel (outbound only, works
+  # behind NAT), e.g. api.cityshield.live -> http://api:8787, set in the
+  # Cloudflare dashboard. Enabled once CF_TUNNEL_TOKEN is in .env.
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cityshield2-cloudflared
     profiles: [cloudflare]
     restart: unless-stopped
-    depends_on:
-      - web
     command: ["tunnel", "--no-autoupdate", "run", "--token", "${CF_TUNNEL_TOKEN:-}"]
 
   # Public HTTPS entry point for the API, kept online by Docker (restarts on

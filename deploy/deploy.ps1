@@ -1,10 +1,11 @@
 <#
-  Deploys the whole City Shield v2 system (web + API + database) to the
-  `celure` server (ssh alias).
+  Deploys the City Shield v2 server side (API + database) to the `celure`
+  server (ssh alias). The web app is deployed by GitHub Pages on every push.
     pwsh deploy/deploy.ps1
   Ships the committed HEAD (git archive) to /srv/celure/cityshield2/src,
   builds images tagged with the commit (RELEASE), restarts the stack, keeps the
   last 5 builds for deploy/ops.ps1 rollback, and installs the nightly backup.
+  WEB_ENABLED=true in the server .env also serves the web app from celure.
   Secrets live in /srv/celure/cityshield2/.env, created once on the server and
   never copied off it. The old v1 stack (/srv/celure/cityshield) is not touched.
 #>
@@ -28,14 +29,13 @@ if [ ! -f .env ]; then
   umask 077
   printf 'POSTGRES_PASSWORD=%s\nJWT_SECRET=%s\nAPI_BIND=127.0.0.1:8788\nDEMO_MODE=true\nSECONDS_PER_MINUTE=12\n' "`$(openssl rand -hex 24)" "`$(openssl rand -hex 32)" > .env
 fi
-# Web app reachable over Tailscale until the public tunnel is set up.
-grep -q '^WEB_BIND=' .env || echo 'WEB_BIND=100.93.157.65:8789' >> .env
 rm -rf src && mkdir src && tar -xzf release.tar.gz -C src
 cd src
 export RELEASE=$sha
 CS_PROFILE=""
 grep -q "^NGROK_AUTHTOKEN=." ../.env && grep -q "^NGROK_DOMAIN=." ../.env && CS_PROFILE="--profile tunnel"
 grep -q "^CF_TUNNEL_TOKEN=." ../.env && CS_PROFILE="`$CS_PROFILE --profile cloudflare"
+if grep -q "^WEB_ENABLED=true" ../.env; then CS_PROFILE="`$CS_PROFILE --profile web"; else docker rm -f cityshield2-web >/dev/null 2>&1 || true; fi
 docker compose --env-file ../.env `$CS_PROFILE up -d --build
 echo "$sha `$(date -Is)" >> ../releases.log
 # Keep the five newest builds of each image for rollback.

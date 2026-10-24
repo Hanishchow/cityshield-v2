@@ -10,24 +10,24 @@
 param([Parameter(Position = 0)][ValidateSet('status', 'logs', 'releases', 'rollback', 'backup')][string]$Cmd = 'status',
       [Parameter(Position = 1)][string]$Arg = '', [string]$Host_ = 'celure', [string]$Dir = '/srv/celure/cityshield2')
 $ErrorActionPreference = 'Continue'
-$profiles = "CS_PROFILE=''; grep -q '^NGROK_AUTHTOKEN=.' ../.env && CS_PROFILE='--profile tunnel'; grep -q '^CF_TUNNEL_TOKEN=.' ../.env && CS_PROFILE=`"`$CS_PROFILE --profile cloudflare`""
+$profiles = "CS_PROFILE=''; grep -q '^NGROK_AUTHTOKEN=.' ../.env && CS_PROFILE='--profile tunnel'; grep -q '^CF_TUNNEL_TOKEN=.' ../.env && CS_PROFILE=`"`$CS_PROFILE --profile cloudflare`"; grep -q '^WEB_ENABLED=true' ../.env && CS_PROFILE=`"`$CS_PROFILE --profile web`""
 $remote = switch ($Cmd) {
   'status' { @"
 cd $Dir/src
 docker compose --env-file ../.env ps --format '{{.Name}}  {{.Status}}  {{.Image}}'
 echo "release: `$(tail -1 ../releases.log 2>/dev/null)"
-echo "health:  `$(curl -s --max-time 5 http://`$(grep '^WEB_BIND=' ../.env | cut -d= -f2)/health || echo unreachable)"
+echo "health:  `$(curl -s --max-time 5 http://`$(grep '^API_BIND=' ../.env | cut -d= -f2)/health || echo unreachable)"
 echo "backup:  `$(tail -1 ../backup.log 2>/dev/null || echo none yet)"
 df -h / | tail -1
 "@ }
   'logs' { $svc = if ($Arg) { $Arg } else { 'api' }; "cd $Dir/src && docker compose --env-file ../.env logs --tail 100 $svc" }
-  'releases' { "cd $Dir && tail -10 releases.log && docker images cityshield2-web --format '{{.Tag}}  {{.CreatedSince}}'" }
+  'releases' { "cd $Dir && tail -10 releases.log && docker images cityshield2-api --format '{{.Tag}}  {{.CreatedSince}}'" }
   'rollback' {
     if ($Arg -notmatch '^[0-9a-f]{7,40}$') { throw 'usage: ops.ps1 rollback <sha> (see: ops.ps1 releases)' }
     @"
 set -e
 cd $Dir/src
-docker image inspect cityshield2-api:$Arg cityshield2-web:$Arg >/dev/null
+docker image inspect cityshield2-api:$Arg >/dev/null
 $profiles
 RELEASE=$Arg docker compose --env-file ../.env `$CS_PROFILE up -d --no-build
 echo "$Arg `$(date -Is) rollback" >> ../releases.log
