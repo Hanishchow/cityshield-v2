@@ -9,6 +9,7 @@ STAMP=$(date +%Y%m%d-%H%M)
 mkdir -p "$OUT"
 docker exec cityshield2-db pg_dump -U cityshield -d cityshield -Fc > "$OUT/$STAMP.dump.tmp"
 mv "$OUT/$STAMP.dump.tmp" "$OUT/$STAMP.dump"
-docker run --rm -v cityshield2_uploads:/u:ro -v "$OUT":/out alpine tar -czf "/out/$STAMP.uploads.tar.gz" -C /u .
+# Run as this user so the 14-day cleanup below can delete the archive later.
+docker run --rm --user "$(id -u):$(id -g)" -v cityshield2_uploads:/u:ro -v "$OUT":/out alpine tar -czf "/out/$STAMP.uploads.tar.gz" -C /u .
 find "$OUT" -maxdepth 1 -type f -mtime +14 -delete
 echo "$(date -Is) ok $(du -h "$OUT/$STAMP.dump" | cut -f1) db, $(du -h "$OUT/$STAMP.uploads.tar.gz" | cut -f1) uploads"
