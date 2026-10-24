@@ -1,8 +1,9 @@
-# City Shield v2 backend: API + Postgres/PostGIS.
+# City Shield v2, the whole system: web app + API + Postgres/PostGIS.
 #   cp deploy/.env.example deploy/.env   # then fill secrets
 #   docker compose --env-file deploy/.env up -d --build
-# The API is published on API_BIND (default 127.0.0.1:8788). Point the web app
-# at it with API_ORIGIN (Vite dev proxy) or VITE_API_BASE (production build).
+# The web app (same origin as the API) is published on WEB_BIND (default
+# 127.0.0.1:8789); the API alone on API_BIND (default 127.0.0.1:8788).
+# RELEASE tags both images so deploy/ops.ps1 can roll back to a previous build.
 name: cityshield2
 services:
   db:
@@ -25,7 +26,7 @@ services:
     build:
       context: .
       dockerfile: api/Dockerfile
-    image: cityshield2-api:latest
+    image: cityshield2-api:${RELEASE:-latest}
     container_name: cityshield2-api
     restart: unless-stopped
     depends_on:
@@ -46,6 +47,34 @@ services:
       - uploads:/data/uploads
     ports:
       - "${API_BIND:-127.0.0.1:8788}:8787"
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args:
+        SITE_URL: ${SITE_URL:-https://cityshield.live/}
+        VITE_RELEASE: ${RELEASE:-local}
+    image: cityshield2-web:${RELEASE:-latest}
+    container_name: cityshield2-web
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${WEB_BIND:-127.0.0.1:8789}:80"
+
+  # Public HTTPS entry for cityshield.live via Cloudflare Tunnel (outbound only,
+  # works behind NAT). Enabled once CF_TUNNEL_TOKEN is in .env; the hostname ->
+  # http://web:80 route is set in the Cloudflare dashboard.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cityshield2-cloudflared
+    profiles: [cloudflare]
+    restart: unless-stopped
+    depends_on:
+      - web
+    command: ["tunnel", "--no-autoupdate", "run", "--token", "${CF_TUNNEL_TOKEN:-}"]
 
   # Public HTTPS entry point for the API, kept online by Docker (restarts on
   # crash and on reboot). deploy.ps1 enables the "tunnel" profile once
