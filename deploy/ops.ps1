@@ -17,7 +17,7 @@ cd $Dir/src
 docker compose --env-file ../.env ps --format '{{.Name}}  {{.Status}}  {{.Image}}'
 echo "release: `$(tail -1 ../releases.log 2>/dev/null)"
 echo "health:  `$(curl -s --max-time 5 http://`$(grep '^API_BIND=' ../.env | cut -d= -f2)/health || echo unreachable)"
-echo "backup:  `$(tail -1 ../backup.log 2>/dev/null || echo none yet)"
+echo "backup:  `$(ls -t /srv/celure/backups/cityshield2/*.dump 2>/dev/null | head -1 || true) `$(tail -1 ../backup.log 2>/dev/null | grep -i -v ' ok ' || true)"
 df -h / | tail -1
 "@ }
   'logs' { $svc = if ($Arg) { $Arg } else { 'api' }; "cd $Dir/src && docker compose --env-file ../.env logs --tail 100 $svc" }
