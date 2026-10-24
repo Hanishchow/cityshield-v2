@@ -328,10 +328,14 @@ export class PostgresRepo implements Repo {
 
   async insertFeedback(userId: string | null, message: string, at: number) { await this.db.insert(t.feedback).values({ userId, message, at: new Date(at) }); }
   async audit(e: AuditEntry) { await this.db.insert(t.auditLog).values({ at: new Date(e.at), actor: e.actor, action: e.action, entity: e.entity, data: e.data ?? null }); }
+  /* Deletes report a row count; no RETURNING, so a big prune does not ship every id back. */
   async prunePings(before: number) {
-    const r = await this.db.delete(t.locationPings).where(lt(t.locationPings.at, new Date(before))).returning({ id: t.locationPings.id });
-    return r.length;
+    return (await this.db.delete(t.locationPings).where(lt(t.locationPings.at, new Date(before)))).count;
   }
+  async pruneAudit(action: string, before: number) {
+    return (await this.db.delete(t.auditLog).where(and(eq(t.auditLog.action, action), lt(t.auditLog.at, new Date(before))))).count;
+  }
+  async ping() { await this.db.execute(sql`select 1`); }
 
   /* ---------- seeding helpers ---------- */
   async isSeeded() { const [r] = await this.db.select({ n: sql<number>`count(*)` }).from(t.stations); return Number(r.n) > 0; }

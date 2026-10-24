@@ -20,7 +20,7 @@ import sharp from 'sharp';
 import { z } from 'zod';
 import {
   ComplaintIn, DeviceSessionIn, FeedbackIn, IncidentIn, IncidentPatchIn, MePatchIn, OpsComplaintPatchIn, OpsIncidentPatchIn, OtpRequestIn,
-  PhoneIn, PingIn, PlaceIn, ReadIn, SosIn, type Health, type Role, type StreamEvent,
+  PhoneIn, PingIn, PlaceIn, ReadIn, SosIn, type Health, type Incident, type Role, type StreamEvent,
 } from '../../shared/contract.ts';
 import { CityShield, HttpError } from '../../shared/services.ts';
 import type { Repo } from '../../shared/repo.ts';
@@ -34,6 +34,15 @@ declare module '@fastify/jwt' {
 }
 
 export interface AppDeps { repo: Repo; logger?: boolean; now?: () => number }
+
+/* postgres-js / Node errors meaning "no database right now" (anywhere in the cause chain). */
+const DB_DOWN = new Set(['ECONNREFUSED', 'ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'ENOTFOUND', '57P03', 'CONNECTION_CLOSED', 'CONNECTION_ENDED', 'CONNECTION_DESTROYED', 'CONNECT_TIMEOUT']);
+export function isDbUnavailable(err: unknown): boolean {
+  for (let e = err as { code?: unknown; cause?: unknown } | undefined, i = 0; e && i < 5; e = e.cause as typeof e, i++) {
+    if (typeof e.code === 'string' && DB_DOWN.has(e.code)) return true;
+  }
+  return false;
+}
 
 export async function buildApp({ repo, logger = true, now }: AppDeps) {
   const hub = new Hub();
@@ -53,6 +62,11 @@ export async function buildApp({ repo, logger = true, now }: AppDeps) {
     if (hasZodFastifySchemaValidationErrors(err)) return reply.code(400).send({ error: 'Invalid request', issues: err.validation });
     if (err instanceof z.ZodError) return reply.code(400).send({ error: 'Invalid request', issues: err.issues });
     if (err instanceof HttpError) return reply.code(err.status).send({ error: err.message });
+    /* Database unreachable: say so plainly, and point to 112, rather than "Internal error". */
+    if (isDbUnavailable(err)) {
+      req.log.warn('database unavailable');
+      return reply.code(503).header('retry-after', '5').send({ error: 'City Shield is briefly unavailable. In an emergency, call 112.' });
+    }
     const status = (err as { statusCode?: number }).statusCode ?? 500;
     if (status >= 500) req.log.error({ err }, 'unhandled error');
     return reply.code(status).send({ error: status >= 500 ? 'Internal error' : (err as Error).message });
@@ -119,10 +133,24 @@ export async function buildApp({ repo, logger = true, now }: AppDeps) {
   const items = <T,>(l: T[]) => ({ items: l, serverTime: Date.now() });
 
   /* ---------- system ---------- */
-  app.get('/health', { schema: { tags: ['system'] } }, async (): Promise<Health & { openStreams: number }> => ({
-    ok: true, store: repo.kind, demo: config.demo, serverTime: Date.now(), uptimeSeconds: Math.round((Date.now() - started) / 1000),
-    capabilities: { geocode: geocoder(), dispatch: 'simulated', notify: 'mock', telephony: 'simulated' }, openStreams: hub.openStreams,
-  }));
+  /* Health reflects the database too: when it is down the web app should fall back to
+     its offline mode (which keeps 112 one tap away) instead of failing every request.
+     The check is cached for 5 s, and health is never rate limited (every visitor probes it). */
+  let dbCheck = { at: 0, up: true };
+  const dbUp = async () => {
+    if (!repo.ping || Date.now() - dbCheck.at < 5000) return dbCheck.up;
+    const up = await Promise.race([repo.ping().then(() => true, () => false), new Promise<boolean>((r) => setTimeout(() => r(false), 1500))]);
+    dbCheck = { at: Date.now(), up };
+    return up;
+  };
+  app.get('/health', { schema: { tags: ['system'] }, config: { rateLimit: false } }, async (_req, reply): Promise<Health & { openStreams: number }> => {
+    const db = await dbUp();
+    if (!db) reply.code(503);
+    return {
+      ok: db, db: db ? 'up' : 'down', store: repo.kind, demo: config.demo, serverTime: Date.now(), uptimeSeconds: Math.round((Date.now() - started) / 1000),
+      capabilities: { geocode: geocoder(), dispatch: 'simulated', notify: 'mock', telephony: 'simulated' }, openStreams: hub.openStreams,
+    };
+  });
 
   await registerGraphql(app as unknown as FastifyInstance, svc, repo.kind);
 
@@ -176,16 +204,23 @@ export async function buildApp({ repo, logger = true, now }: AppDeps) {
     r.get('/units/:id', { schema: { tags: ['geo'], params: z.object({ id: z.string() }) } }, async (req) => { await user(req); return svc.unit(req.params.id); });
 
     /* ----- emergency ----- */
-    const idem = new Map<string, { id: string; at: number }>();
+    /* Panic-tapping (or a flaky network retrying) must not create several incidents: the
+       client sends an Idempotency-Key per press. The in-flight promise is stored BEFORE any
+       await, so presses that arrive at the same moment share one incident. */
+    const idem = new Map<string, { at: number; inc: Promise<Incident> }>();
+    let idemSweptAt = 0;
     r.post('/sos', { schema: { tags: ['emergency'], body: SosIn }, config: { rateLimit: false } }, async (req) => {
       const uid = await user(req);
-      /* Panic-tapping must not create several incidents: the client sends an Idempotency-Key per press. */
       const key = String(req.headers['idempotency-key'] ?? '').slice(0, 100);
-      const k = key ? `${uid}:${key}` : null;
-      for (const [x, v] of idem) if (Date.now() - v.at > 10 * 60_000) idem.delete(x);
-      if (k && idem.has(k)) return svc.incident(uid, idem.get(k)!.id);
-      const inc = await svc.raise(uid, 'sos', req.body.location);
-      if (k) idem.set(k, { id: inc.id, at: Date.now() });
+      if (!key) return svc.raise(uid, 'sos', req.body.location);
+      const now = Date.now();
+      if (now - idemSweptAt > 60_000) { idemSweptAt = now; for (const [x, v] of idem) if (now - v.at > 10 * 60_000) idem.delete(x); }
+      const k = `${uid}:${key}`;
+      const hit = idem.get(k);
+      if (hit) return svc.incident(uid, (await hit.inc).id);
+      const inc = svc.raise(uid, 'sos', req.body.location);
+      idem.set(k, { at: now, inc });
+      inc.catch(() => idem.delete(k)); // a press that failed may be retried with the same key
       return inc;
     });
     r.post('/incidents', { schema: { tags: ['emergency'], body: IncidentIn } }, async (req, reply) => reply.code(201).send(await svc.raise(await user(req), req.body.kind, req.body.location)));

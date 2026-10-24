@@ -15,6 +15,8 @@ export interface AuditEntry { at: number; actor: string | null; action: string; 
 
 export interface Repo {
   readonly kind: 'memory' | 'postgres';
+  /** Cheap round trip to the database; rejects when it is unreachable. */
+  ping?(): Promise<void>;
 
   userById(id: string): Promise<User | null>;
   userByPhone(phone: string): Promise<User | null>;
@@ -63,6 +65,8 @@ export interface Repo {
   audit(e: AuditEntry): Promise<void>;
   /** DPDP retention: drop location pings older than `before`. Returns rows removed. */
   prunePings(before: number): Promise<number>;
+  /** Drop audit rows of one action older than `before` (client crash reports are not kept forever). */
+  pruneAudit(action: string, before: number): Promise<number>;
 }
 
 export const ACTIVE_STATUSES: IncidentStatus[] = ['dispatched', 'en_route', 'on_scene'];

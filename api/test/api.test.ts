@@ -59,6 +59,43 @@ test('SOS dispatches ambulance + police and is idempotent per key', async () => 
   assert.ok(a.agencies.some((g) => g.agency.includes('112')), 'shared with 112 ERSS');
 });
 
+test('simultaneous SOS presses with one key create one incident', async () => {
+  const { app, auth } = await setup();
+  const press = () => app.inject({ method: 'POST', url: '/v1/sos', headers: { ...auth, 'idempotency-key': 'burst-1' }, payload: { location: KORAMANGALA } });
+  const all = await Promise.all(Array.from({ length: 10 }, press));
+  assert.ok(all.every((r) => r.statusCode === 200), all.map((r) => r.statusCode).join(','));
+  assert.equal(new Set(all.map((r) => (r.json() as Incident).id)).size, 1);
+});
+
+test('health is never rate limited and reports the database', async () => {
+  const { app } = await setup();
+  const codes = new Set<number>();
+  for (let i = 0; i < 130; i++) codes.add((await app.inject('/health')).statusCode);
+  assert.deepEqual([...codes], [200]);
+  assert.equal((await app.inject('/health')).json().ok, true);
+});
+
+test('a database outage is a 503 that points to 112, and health says down', async () => {
+  const { isDbUnavailable } = await import('../src/app.ts');
+  const down = Object.assign(new Error('Failed query'), { cause: Object.assign(new Error('connect'), { code: 'ECONNREFUSED' }) });
+  assert.equal(isDbUnavailable(down), true);
+  assert.equal(isDbUnavailable(new Error('other')), false);
+  const repo = new MemoryRepo();
+  let up = true;
+  const realUserById = repo.userById.bind(repo);
+  repo.ping = async () => { if (!up) throw down; };
+  repo.userById = async (id) => { if (!up) throw down; return realUserById(id); };
+  const { app } = await buildApp({ repo, logger: false });
+  const s = (await app.inject({ method: 'POST', url: '/v1/auth/device', payload: { deviceId: 'outage-device-01' } })).json() as Session;
+  up = false;
+  const h = await app.inject('/health');
+  assert.equal(h.statusCode, 503);
+  assert.equal(h.json().db, 'down');
+  const me = await app.inject({ url: '/v1/me', headers: { authorization: `Bearer ${s.token}` } });
+  assert.equal(me.statusCode, 503);
+  assert.match(me.json().error, /112/);
+});
+
 test('units arrive and the incident goes on scene', async () => {
   const { app, auth, advance } = await setup();
   const inc = (await app.inject({ method: 'POST', url: '/v1/incidents', headers: auth, payload: { kind: 'fire', location: KORAMANGALA } })).json() as Incident;

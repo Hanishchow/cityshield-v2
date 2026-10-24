@@ -131,9 +131,15 @@ export class MemoryRepo implements Repo {
     for (const n of this.ntf) if (n.userId === userId && n.readAt == null && (!ids || ids.includes(n.id))) n.readAt = at;
   }
 
+  async ping() { /* in-process: always reachable */ }
   async insertFeedback(userId: string | null, message: string, at: number) { this.feedback.push({ userId, message, at }); }
   async audit(e: AuditEntry) { this.auditLog.push(e); if (this.auditLog.length > 5000) this.auditLog.splice(0, 1000); }
   async prunePings(before: number) { const n = this.pings.length; this.pings = this.pings.filter((p) => p.at >= before); return n - this.pings.length; }
+  async pruneAudit(action: string, before: number) {
+    let n = 0;
+    for (let i = this.auditLog.length - 1; i >= 0; i--) if (this.auditLog[i].action === action && this.auditLog[i].at < before) { this.auditLog.splice(i, 1); n++; }
+    return n;
+  }
 }
 
 export const normPhone = (p: string) => p.replace(/[^\d+]/g, '').replace(/^\+?91(?=\d{10}$)/, '');

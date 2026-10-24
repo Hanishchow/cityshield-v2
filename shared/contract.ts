@@ -79,7 +79,8 @@ export interface Notification {
 
 /* ---------- responses ---------- */
 export interface Health {
-  ok: true; store: 'memory' | 'postgres'; demo: boolean; serverTime: number; uptimeSeconds: number;
+  /** false (with HTTP 503) when the database is unreachable. */
+  ok: boolean; db?: 'up' | 'down'; store: 'memory' | 'postgres'; demo: boolean; serverTime: number; uptimeSeconds: number;
   capabilities: { geocode: 'mappls' | 'ola' | 'mock'; dispatch: 'simulated'; notify: 'mock'; telephony: 'simulated' };
 }
 export interface Session { token: string; user: User; devCode?: string }
