@@ -139,18 +139,27 @@ export function useMarkRead() {
 export function useOps() {
   const b = useBackend(), m = useKey();
   return {
-    kpis: useQuery({ queryKey: [m, 'ops', 'kpis'], queryFn: () => b.opsKpis(), refetchInterval: 15_000 }),
-    incidents: useQuery({ queryKey: [m, 'ops', 'incidents'], queryFn: () => b.opsIncidents(), refetchInterval: 20_000 }),
+    /* The ops stream pushes changes; polling is only the safety net. */
+    kpis: useQuery({ queryKey: [m, 'ops', 'kpis'], queryFn: () => b.opsKpis(), refetchInterval: 30_000 }),
+    incidents: useQuery({ queryKey: [m, 'ops', 'incidents'], queryFn: () => b.opsIncidents(), refetchInterval: 30_000 }),
     units: useQuery({ queryKey: [m, 'ops', 'units'], queryFn: () => b.opsUnits(), staleTime: 60_000 }),
     wards: useQuery({ queryKey: [m, 'ops', 'wards'], queryFn: () => b.opsWards(), refetchInterval: 60_000 }),
   };
 }
 export function useOpsLive() {
   const b = useBackend(), m = useKey(), qc = useQueryClient();
-  useEffect(() => b.subscribeOps(() => {
-    qc.invalidateQueries({ queryKey: [m, 'ops', 'incidents'] });
-    qc.invalidateQueries({ queryKey: [m, 'ops', 'kpis'] });
-  }), [b, m, qc]);
+  useEffect(() => {
+    /* A burst of events (several units arriving) refreshes once, not once per event. */
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const off = b.subscribeOps(() => {
+      timer ??= setTimeout(() => {
+        timer = null;
+        qc.invalidateQueries({ queryKey: [m, 'ops', 'incidents'] });
+        qc.invalidateQueries({ queryKey: [m, 'ops', 'kpis'] });
+      }, 5000);
+    });
+    return () => { off(); if (timer) clearTimeout(timer); };
+  }, [b, m, qc]);
 }
 
 /* ---------- live bridge: SSE → cache + toasts ---------- */

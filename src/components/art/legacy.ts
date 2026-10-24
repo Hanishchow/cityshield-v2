@@ -17,13 +17,6 @@ function blob(cx,cy,rx,ry,n,jit,seed){
   return d+'Z';
 }
 
-/* ---------- logo ---------- */
-function logoSVG(){
-  return '<svg viewBox="0 0 48 56" aria-hidden="true"><path d="M24 2.5 43.5 9.2V26c0 13.6-9 22.6-19.5 27.4C13.5 48.6 4.5 39.6 4.5 26V9.2Z" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/>'+
-    '<path d="M24 7.6 39 12.8V26c0 10.8-6.8 18-15 22.2C15.8 44 9 36.8 9 26V12.8Z" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.35)" stroke-width="1"/>'+
-    '<text x="24" y="33.5" text-anchor="middle" font-family="Plus Jakarta Sans,system-ui,sans-serif" font-weight="800" font-size="15.5" fill="#fff" letter-spacing=".5">CS</text></svg>';
-}
-
 /* ---------- hero: Vidhana Soudha at dusk ---------- */
 let _hero=null;
 function heroArt(){

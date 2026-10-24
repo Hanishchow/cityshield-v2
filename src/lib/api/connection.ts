@@ -42,7 +42,7 @@ async function probe(): Promise<Health | null> {
   }
 }
 
-let started = false, watch: ReturnType<typeof setInterval> | null = null, failures = 0;
+let started = false, watch: ReturnType<typeof setTimeout> | null = null, failures = 0;
 let onSwitch: (() => void) | null = null;
 export function onBackendSwitch(fn: () => void) { onSwitch = fn; }
 
@@ -60,7 +60,10 @@ export async function initConnection() {
   const h = await probe();
   if (h) adopt(createHttpBackend(), h);
   else { const off = createOfflineBackend(); adopt(off, await off.health()); }
-  watch = setInterval(async () => {
+  /* Every probe through the free tunnel counts against its monthly cap, so a hidden tab
+     does not probe at all: it checks again the moment it is shown. Live: every 30 s (the
+     event stream carries changes meanwhile). Offline: every 15 s, to come back quickly. */
+  const check = async () => {
     const { mode } = useConn.getState();
     const live = await probe();
     if (mode === 'offline' && live) { failures = 0; adopt(createHttpBackend(), live); }
@@ -68,9 +71,18 @@ export async function initConnection() {
       if (live) { failures = 0; offsetRef = live.serverTime - Date.now(); useConn.setState({ health: live, offset: offsetRef }); }
       else if (++failures >= 2) { const off = createOfflineBackend(); adopt(off, await off.health()); }
     }
-  }, 15_000);
+  };
+  const schedule = () => {
+    if (watch) clearTimeout(watch);
+    watch = setTimeout(async () => {
+      if (!document.hidden) await check();
+      schedule();
+    }, useConn.getState().mode === 'live' ? 30_000 : 15_000);
+  };
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) void check().finally(schedule); });
+  schedule();
 }
-export function stopConnection() { if (watch) clearInterval(watch); }
+export function stopConnection() { if (watch) clearTimeout(watch); }
 
 /** Device session first, so SOS never waits on a sign-in. Re-authenticates on 401. */
 export async function ensureUser(b: Backend) {

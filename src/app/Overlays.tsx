@@ -154,6 +154,7 @@ function SosSent({ incidentId, svc }: { incidentId: string; svc: SosService }) {
   const nav = useNavigate();
   const me = useMe().data;
   const inc = useIncidents(true).data?.find((i) => i.id === incidentId);
+  const [openedAt] = useState(() => Date.now()); // shown until the incident's own time loads
   const deco = useDecor3D();
   const track = (k: string) => { closeOverlay(); nav(`/service/${k}`); };
   const as = inc?.assignments ?? [];
@@ -167,7 +168,7 @@ function SosSent({ incidentId, svc }: { incidentId: string; svc: SosService }) {
         )}
         <h2 className="text-[28px] font-extrabold">Help is on the way</h2>
         <p className="mt-2 text-[15px] text-white/75">
-          {t(svc)} alerted at {fmtTime2(inc?.createdAt ?? Date.now())} · <span className="font-mono">{incidentId}</span>.{' '}
+          {t(svc)} alerted at {fmtTime2(inc?.createdAt ?? openedAt)} · <span className="font-mono">{incidentId}</span>.{' '}
           {me?.shareLive ? 'Your live location is being shared with responders.' : `Your location (${shortArea(me?.area.label ?? '')}) was shared with responders.`}
         </p>
         <div className="mt-5 flex flex-col gap-2.5 text-left">
