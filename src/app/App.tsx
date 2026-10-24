@@ -6,7 +6,7 @@ import { Phone } from 'lucide-react';
 import { Tooltip } from 'radix-ui';
 import { initConnection, onBackendSwitch, useConn } from '@/lib/api/connection.ts';
 import { useLiveBridge, useMe } from '@/lib/api/hooks.ts';
-import { useAutoLocate } from '@/lib/useLocateMe.ts';
+import { useAutoLocate, useLiveSync } from '@/lib/useLocateMe.ts';
 import { reportError } from '@/lib/errorReport.ts';
 import { resolvedTheme, useUI } from '@/store/ui.ts';
 import { ShieldMark } from '@/components/brand/Logo.tsx';
@@ -76,6 +76,7 @@ function Sync() {
   const me = useMe().data;
   useLiveBridge();
   useAutoLocate();
+  useLiveSync();
   useEffect(() => {
     const apply = () => {
       const r = resolvedTheme(theme);

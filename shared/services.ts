@@ -10,7 +10,7 @@ import type {
   NearbyStation, OpsKpis, Place, PlaceIn, ServiceKey, StationKind, StreamEvent, TimelineItem, Unit, UnitKind, User, WardCount,
 } from './contract.ts';
 import { CITY_BOUNDS, ISSUE_PT, USER_PT, gridRoute, rng, type SPoint } from './city.ts';
-import { ANCHOR, inBengaluru, toLatLng, toSchematic, type LatLng } from './geo.ts';
+import { ANCHOR, haversineKm, inBengaluru, toLatLng, toSchematic, type LatLng } from './geo.ts';
 import {
   AGENCY, CANNED_ROUTES, CITY_SPEED_KMH, CIVIC, COMPLAINT_ASSIGN_DELAY_MS, DEMO_SECONDS_PER_MINUTE, POLICY, SERVICES, WARDS,
   categoryOf, stationById,
@@ -120,7 +120,7 @@ export class CityShield {
     const now = this.now();
     const policy = POLICY[kind];
     const at = { lat: loc.lat, lng: loc.lng };
-    const dest = destPoint(at);
+    const dest = routePoint(at);
     const id = 'INC-' + (await this.repo.nextId('incident'));
     const assignments: Assignment[] = [];
     for (const uk of policy.units) {
@@ -214,9 +214,19 @@ export class CityShield {
     this.publishIncident(next);
     return next;
   }
+  /**
+   * A live-location ping from the citizen. Stored for the record and, while the
+   * incident is open and the citizen has really moved (> 20 m), it moves the
+   * incident itself so responders and the control room see where they are now.
+   */
   async ping(userId: string, id: string, loc: LocationIn) {
     const i = await this.incident(userId, id);
-    await this.repo.insertPing(i.id, userId, this.now(), { lat: loc.lat, lng: loc.lng, accuracyM: loc.accuracyM != null ? Math.round(loc.accuracyM) : null });
+    const accuracyM = loc.accuracyM != null ? Math.round(loc.accuracyM) : null;
+    await this.repo.insertPing(i.id, userId, this.now(), { lat: loc.lat, lng: loc.lng, accuracyM });
+    if (i.closedAt != null || !inBengaluru(loc)) return;
+    if (haversineKm(i, loc) * 1000 < 20 && i.source === 'gps') return;
+    const next = await this.repo.updateIncident(i.id, { lat: loc.lat, lng: loc.lng, accuracyM, source: 'gps' });
+    if (next) this.publishIncident(next);
   }
   async unit(id: string) {
     const u = await this.repo.unitById(id);
@@ -272,7 +282,7 @@ export class CityShield {
     return next!;
   }
   private async assignComplaint(c: Complaint, now: number): Promise<Complaint | null> {
-    const pt = destPoint(c, ISSUE_PT);
+    const pt = routePoint(c, ISSUE_PT);
     const crewUnit = await this.repo.nearestAvailableUnit('crew', c);
     let crew: Assignment | null = null;
     if (crewUnit) { await this.repo.updateUnit(crewUnit.id, { status: 'dispatched' }); crew = this.buildAssignment(crewUnit, pt, now); }
@@ -518,6 +528,17 @@ export function destPoint(ll: LatLng, fallback: SPoint = USER_PT): SPoint {
   if (!inBengaluru(ll)) return fallback;
   const p = toSchematic(ll);
   if (p[0] < CITY_BOUNDS.x0 + MARGIN || p[0] > CITY_BOUNDS.x1 - MARGIN || p[1] < CITY_BOUNDS.y0 + MARGIN || p[1] > CITY_BOUNDS.y1 - MARGIN) return fallback;
+  return [Math.round(p[0]), Math.round(p[1])];
+}
+/**
+ * Where responders ROUTE to: the real location anywhere in Bengaluru. Unlike
+ * destPoint (for the small schematic drawing) it never snaps to the default
+ * point, so a citizen in Whitefield is not sent help in Koramangala. The street
+ * map turns the route's end points into real road routes.
+ */
+export function routePoint(ll: LatLng, fallback: SPoint = USER_PT): SPoint {
+  if (!inBengaluru(ll)) return fallback;
+  const p = toSchematic(ll);
   return [Math.round(p[0]), Math.round(p[1])];
 }
 export function wardOf(ll: LatLng): string {

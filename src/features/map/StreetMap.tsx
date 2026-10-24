@@ -17,6 +17,7 @@ import { toLatLng } from '@shared/geo.ts';
 import { progressOf } from '@shared/progress.ts';
 import { serverNow } from '@/lib/api/connection.ts';
 import { useLocateMe } from '@/lib/useLocateMe.ts';
+import { useLive } from '@/lib/liveLocation.ts';
 import { ICONS } from '@/components/icons.tsx';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { cn } from '@/lib/utils.ts';
@@ -109,6 +110,8 @@ export function StreetMap({ assignments, dest, issue, hospital, locationLabel, c
   const [status, setStatus] = useState(() => statusOf(assignments[0] ?? null, serverNow()));
   const [failed, setFailed] = useState(false);
   const { locate, busy: locating } = useLocateMe();
+  const you = useLive((s) => s.fix);
+  const youDot = useRef<{ dot: L.Marker; ring: L.Circle } | null>(null);
 
   const destLL: LL = issue ? sToLL(issue.pt) : sToLL(dest ?? [650, 350]);
   const key = assignments.map((a) => `${a.unitId}:${a.dispatchedAt}`).join('|');
@@ -128,7 +131,7 @@ export function StreetMap({ assignments, dest, issue, hospital, locationLabel, c
       layer.current = L.layerGroup().addTo(map);
       const ro = new ResizeObserver(() => map.invalidateSize());
       ro.observe(box.current);
-      return () => { ro.disconnect(); map.remove(); mapRef.current = null; };
+      return () => { ro.disconnect(); map.remove(); mapRef.current = null; youDot.current = null; };
     } catch { setFailed(true); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -212,6 +215,19 @@ export function StreetMap({ assignments, dest, issue, hospital, locationLabel, c
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routes, hospRoute, key, destLL[0], destLL[1], issue?.state, hospital?.name, locationLabel]);
+
+  /* the device's live position: moves on every fix without redrawing the rest */
+  useEffect(() => {
+    const map = mapRef.current; if (!map) return;
+    if (!you?.inArea) { youDot.current?.dot.remove(); youDot.current?.ring.remove(); youDot.current = null; return; }
+    const ll: LL = [you.lat, you.lng];
+    if (!youDot.current) {
+      youDot.current = {
+        ring: L.circle(ll, { radius: you.accuracyM, color: '#2F6FE4', weight: 1, opacity: 0.5, fillOpacity: 0.1, interactive: false }).addTo(map),
+        dot: L.marker(ll, { icon: divIcon('<div class="lm-you"></div>', 16, 16, 8, 8), zIndexOffset: 900, keyboard: false, interactive: false }).addTo(map),
+      };
+    } else { youDot.current.ring.setLatLng(ll).setRadius(you.accuracyM); youDot.current.dot.setLatLng(ll); }
+  }, [you]);
 
   const approx = assignments.some((a) => routes[a.unitId]?.approx);
   const fit = () => {

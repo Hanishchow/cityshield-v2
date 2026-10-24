@@ -12,6 +12,7 @@ import { SOS_ART, SOS_SUB } from '@/features/sos/art.ts';
 import { ChevronRight } from 'lucide-react';
 import { useIncidentActions, useIncidents, useMe, useBackend } from '@/lib/api/hooks.ts';
 import { areaLocation, requestGps } from '@/lib/location.ts';
+import { freshFix, startLiveLocation } from '@/lib/liveLocation.ts';
 import { appToast } from '@/components/toast.tsx';
 import { Icon, SERVICE_ICON } from '@/components/icons.tsx';
 import { Button } from '@/components/ui/button.tsx';
@@ -117,11 +118,17 @@ function SosCountdown({ svc }: { svc: SosService }) {
     if (n > 0 || fired.current || !me) return;
     fired.current = true;
     vibrate([120, 60, 120]);
-    raise.mutate({ kind: svc, location: areaLocation(me) }, {
+    /* Where the person IS right now if the device knows (fix under a minute old),
+       else their saved area. Never wait for GPS before sending. */
+    const live = freshFix();
+    const location = live ? { lat: live.lat, lng: live.lng, accuracyM: live.accuracyM, source: 'gps' as const, address: me.area.label } : areaLocation(me);
+    raise.mutate({ kind: svc, location }, {
       onSuccess: (inc) => {
         openOverlay({ kind: 'sos-sent', incidentId: inc.id, svc });
-        /* refine with GPS in the background — never delay the SOS for it */
-        if (me.shareLive) void requestGps().then((f) => f && backend.ping(inc.id, { ...f, source: 'gps' }).catch(() => {}));
+        if (me.shareLive) {
+          startLiveLocation(); // keeps the incident following them (see useLiveSync)
+          if (!live) void requestGps().then((f) => f && backend.ping(inc.id, { ...f, source: 'gps' }).catch(() => {}));
+        }
       },
       onError: () => { closeOverlay(); appToast('Could not send SOS. Call 112 now.', 'alert', 'sos'); },
     });

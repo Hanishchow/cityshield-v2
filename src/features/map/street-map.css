@@ -27,6 +27,8 @@
 .lm-me { position: relative; width: 20px; height: 20px; }
 .lm-me b { position: absolute; inset: 2px; border-radius: 50%; background: #2F6FE4; border: 3px solid #fff; box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4); }
 .lm-me i { position: absolute; inset: -9px; border-radius: 50%; background: rgba(47, 111, 228, 0.3); animation: pulse-ring 2s ease-out infinite; }
+/* live device position (not the destination pin) */
+.lm-you { width: 16px; height: 16px; border-radius: 50%; background: #2F6FE4; border: 2px solid #fff; box-shadow: 0 0 0 2px rgba(47, 111, 228, 0.35); }
 .lm-veh { position: relative; width: 42px; height: 42px; }
 .lm-veh .bd { position: absolute; inset: 0; border-radius: 50%; background: var(--c); border: 3px solid #fff; display: grid; place-items: center; color: #fff; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35); }
 .lm-veh .arr { position: absolute; inset: -11px; pointer-events: none; transition: transform 0.2s linear; }

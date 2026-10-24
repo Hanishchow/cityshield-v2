@@ -183,6 +183,12 @@ export class PostgresRepo implements Repo {
       if (patch.destinationHospitalId !== undefined) v.destinationHospitalId = patch.destinationHospitalId;
       if (patch.closedAt !== undefined) v.closedAt = dt(patch.closedAt);
       if (patch.title !== undefined) v.title = patch.title;
+      /* live location sharing moves the incident with the citizen */
+      if (patch.lat !== undefined) v.lat = patch.lat;
+      if (patch.lng !== undefined) v.lng = patch.lng;
+      if (patch.accuracyM !== undefined) v.accuracyM = patch.accuracyM;
+      if (patch.source !== undefined) v.source = patch.source;
+      if (patch.address !== undefined) v.address = patch.address;
       if (Object.keys(v).length) await tx.update(t.incidents).set(v).where(eq(t.incidents.id, id));
       if (patch.assignments) {
         await tx.delete(t.assignments).where(eq(t.assignments.incidentId, id));

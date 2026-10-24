@@ -31,25 +31,32 @@ export async function locate(): Promise<LocateResult> {
     const fix = { lat: p.coords.latitude, lng: p.coords.longitude, accuracyM: Math.round(p.coords.accuracy || 0) };
     return { ok: true, fix, inArea: inBengaluru(fix), kmFromCity: Math.round(haversineKm(fix, ANCHOR)) };
   };
+  /* GPS and Wi-Fi/cell in parallel: the first answer wins (the live watch refines it after) */
+  const tries = [
+    once({ enableHighAccuracy: true, timeout: 10_000, maximumAge: 15_000 }),
+    once({ enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 }),
+  ];
   try {
-    return toResult(await once({ enableHighAccuracy: true, timeout: 8000, maximumAge: 15_000 }));
+    return toResult(await Promise.any(tries));
   } catch (e) {
-    if ((e as GeolocationPositionError).code === 1) return { ok: false, reason: 'denied' };
-  }
-  try {
-    return toResult(await once({ enableHighAccuracy: false, timeout: 10_000, maximumAge: 120_000 }));
-  } catch (e) {
-    const code = (e as GeolocationPositionError).code;
-    return { ok: false, reason: code === 1 ? 'denied' : code === 3 ? 'timeout' : 'unavailable' };
+    const codes = ((e as AggregateError).errors ?? []).map((x) => (x as GeolocationPositionError).code);
+    return { ok: false, reason: codes.includes(1) ? 'denied' : codes.includes(3) ? 'timeout' : 'unavailable' };
   }
 }
+
+/* where to switch location on, for the device the page is running on */
+const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+const OS_HINT = /Android/.test(ua) ? ' Turn on Location in your phone settings.'
+  : /iPhone|iPad/.test(ua) ? ' Turn on Settings → Privacy & Security → Location Services.'
+  : /Windows/.test(ua) ? ' On Windows, turn on Settings → Privacy & security → Location.'
+  : /Mac OS X/.test(ua) ? ' On a Mac, allow your browser in System Settings → Privacy & Security → Location Services.' : '';
 
 export const LOCATE_MESSAGE: Record<LocateFail, string> = {
   insecure: 'Location needs a secure (https) page — open the app over https.',
   unsupported: 'This browser cannot share location — set your area manually.',
   denied: 'Location permission is blocked — allow it in your browser settings.',
-  timeout: 'Could not get a fix in time — move near a window or try again.',
-  unavailable: 'Your device could not determine a location — try again.',
+  timeout: `Your device did not report a location.${OS_HINT} Or search for your area.`,
+  unavailable: `Location is switched off on this device.${OS_HINT} Or search for your area.`,
 };
 
 /** Current permission state without prompting ('granted' | 'denied' | 'prompt' | 'unknown'). */
