@@ -7,7 +7,6 @@ One-tap emergency help and civic complaints for Bengaluru. A single emergency in
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 > ⚠️ **Prototype.** This does not dispatch real emergency services. Real dispatch
 > needs an ERSS-112 integration that requires a government agreement. Responder
@@ -143,13 +142,15 @@ Both halves run with **zero environment variables**. Absent credentials degrade 
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
+© 2026 Shreyas D. J. & N. Hanish. All rights reserved.
+
+No licence is granted to copy, modify or distribute this code without the authors' written permission.
 
 ---
 
 ## 👥 Team
 
-Built by the City Shield team for Bengaluru.
+Built for Bengaluru by Shreyas D. J. and N. Hanish.
 
 ---
 
