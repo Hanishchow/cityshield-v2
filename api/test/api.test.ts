@@ -181,6 +181,18 @@ test('the public ops stream never carries a citizen\'s events', async () => {
   assert.ok(!anon.includes(inc.id), 'the public does not');
 });
 
+test('a public deployment never hands out OTP codes', async () => {
+  const { config } = await import('../src/config.ts');
+  const { app } = await setup();
+  const was = config.prod;
+  (config as { prod: boolean }).prod = true;
+  try {
+    const r = await app.inject({ method: 'POST', url: '/v1/auth/otp/request', payload: { phone: '+91 98450 00001' } });
+    assert.equal(r.statusCode, 503);
+    assert.equal(r.json().devCode, undefined);
+  } finally { (config as { prod: boolean }).prod = was; }
+});
+
 test('client error reports are accepted and validated', async () => {
   const { app } = await setup();
   const ok = await app.inject({ method: 'POST', url: '/v1/client-errors', payload: { source: 'error', message: 'boom', url: '/sos' } });

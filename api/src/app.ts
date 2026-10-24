@@ -132,11 +132,14 @@ export async function buildApp({ repo, logger = true, now }: AppDeps) {
     /* ----- auth ----- */
     r.post('/auth/device', { schema: { tags: ['auth'], body: DeviceSessionIn } }, async (req) => session((await svc.deviceUser(req.body.deviceId)).id));
     r.post('/auth/otp/request', { schema: { tags: ['auth'], body: OtpRequestIn }, config: { rateLimit: { max: 5, timeWindow: '10 minutes' } } }, async (req) => {
+      /* No SMS provider yet. Returning the code in the response would let anyone sign in
+         as any phone number (and so read that person's cases), so a public deployment
+         refuses; only local development shows the code on screen. */
+      if (config.prod) throw new HttpError(503, 'Phone verification is not available yet. Your device account still works, including SOS.');
       const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
       await repo.putOtp(req.body.phone, { codeHash: otpHash(req.body.phone, code), expiresAt: Date.now() + 5 * 60_000, attempts: 0 });
-      /* No SMS provider agreement yet: outside production (or in an explicit demo deployment) the code is returned so the app can show it. */
-      if (!config.prod || config.demo) { req.log.warn({ phone: req.body.phone.slice(-4) }, `dev OTP ${code}`); return { sent: true, devCode: code }; }
-      return { sent: true };
+      req.log.warn({ phone: req.body.phone.slice(-4) }, `dev OTP ${code}`);
+      return { sent: true, devCode: code };
     });
     r.post('/auth/otp/verify', { schema: { tags: ['auth'], body: z.object({ phone: PhoneIn, code: z.string().regex(/^\d{6}$/), deviceId: z.string().min(8).max(100) }) } }, async (req) => {
       const { phone, code, deviceId } = req.body;
