@@ -12,8 +12,9 @@ DIR=/srv/celure/cityshield2
 [ -f "$TAR" ] || { echo "release archive not found: $TAR" >&2; exit 2; }
 cd "$DIR"
 if [ ! -f .env ]; then
-  umask 077
-  printf 'POSTGRES_PASSWORD=%s\nJWT_SECRET=%s\nAPI_BIND=127.0.0.1:8788\nDEMO_MODE=true\nSECONDS_PER_MINUTE=12\n' "$(openssl rand -hex 24)" "$(openssl rand -hex 32)" > .env
+  # Subshell: the private umask must not leak into the unpack below, or the
+  # image's node user could not read the source.
+  ( umask 077; printf 'POSTGRES_PASSWORD=%s\nJWT_SECRET=%s\nAPI_BIND=127.0.0.1:8788\nDEMO_MODE=true\nSECONDS_PER_MINUTE=12\n' "$(openssl rand -hex 24)" "$(openssl rand -hex 32)" > .env )
 fi
 rm -rf src.new && mkdir src.new && tar -xzf "$TAR" -C src.new
 rm -rf src && mv src.new src
