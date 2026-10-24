@@ -93,11 +93,23 @@ export async function buildApp({ repo, logger = true, now }: AppDeps) {
     try { await req.jwtVerify(); } catch { throw new HttpError(401, 'Sign-in required'); }
     return req.user.sub;
   };
-  const ops = async (req: FastifyRequest) => {
-    if (config.demo) { try { await req.jwtVerify(); return req.user.sub; } catch { return null; } }
-    const uid = await user(req);
-    if (!(await svc.isOps(uid))) throw new HttpError(403, 'Command Centre access only');
-    return uid;
+  /* Command Centre access. An operator sees every case. In a demo deployment anyone may look,
+     but only at city records with no citizen behind them: a citizen's case is visible to that
+     citizen and to operators, never to the public. */
+  const opsView = async (req: FastifyRequest): Promise<{ uid: string | null; full: boolean }> => {
+    let uid: string | null = null;
+    try { await req.jwtVerify(); uid = req.user.sub; } catch { /* anonymous */ }
+    if (uid && (await svc.isOps(uid))) return { uid, full: true };
+    if (config.demo) return { uid, full: false };
+    if (!uid) throw new HttpError(401, 'Sign-in required');
+    throw new HttpError(403, 'Command Centre access only');
+  };
+  /** Changing a record: operators may change any; demo visitors only public city records. */
+  const opsWrite = async (req: FastifyRequest, owner: (id: string) => Promise<{ userId: string | null } | null>, id: string) => {
+    const v = await opsView(req);
+    const rec = await owner(id);
+    if (!rec || (!v.full && rec.userId)) throw new HttpError(404, 'Not found');
+    return v.uid;
   };
   const session = async (uid: string) => {
     const u = await svc.me(uid);
@@ -235,12 +247,15 @@ export async function buildApp({ repo, logger = true, now }: AppDeps) {
     });
 
     /* ----- command centre ----- */
-    r.get('/ops/kpis', { schema: { tags: ['ops'] } }, async (req) => { await ops(req); return svc.opsKpis(); });
-    r.get('/ops/incidents', { schema: { tags: ['ops'] } }, async (req) => { await ops(req); return items(await svc.opsIncidents()); });
-    r.get('/ops/units', { schema: { tags: ['ops'] } }, async (req) => { await ops(req); return items(await svc.opsUnits()); });
-    r.get('/ops/wards', { schema: { tags: ['ops'] } }, async (req) => { await ops(req); return items(await svc.wards()); });
-    r.patch('/ops/incidents/:id', { schema: { tags: ['ops'], ...idP, body: OpsIncidentPatchIn } }, async (req) => svc.opsSetIncident(await ops(req), req.params.id, req.body.status));
-    r.patch('/ops/complaints/:id', { schema: { tags: ['ops'], ...idP, body: OpsComplaintPatchIn } }, async (req) => svc.opsSetComplaint(await ops(req), req.params.id, req.body.status));
+    /* KPIs and ward counts are aggregates with no personal data. */
+    r.get('/ops/kpis', { schema: { tags: ['ops'] } }, async (req) => { await opsView(req); return svc.opsKpis(); });
+    r.get('/ops/incidents', { schema: { tags: ['ops'] } }, async (req) => { const v = await opsView(req); return items(await svc.opsIncidents(v.full ? 'all' : 'public')); });
+    r.get('/ops/units', { schema: { tags: ['ops'] } }, async (req) => { await opsView(req); return items(await svc.opsUnits()); });
+    r.get('/ops/wards', { schema: { tags: ['ops'] } }, async (req) => { await opsView(req); return items(await svc.wards()); });
+    r.patch('/ops/incidents/:id', { schema: { tags: ['ops'], ...idP, body: OpsIncidentPatchIn } },
+      async (req) => svc.opsSetIncident(await opsWrite(req, (id) => repo.incidentById(id), req.params.id), req.params.id, req.body.status));
+    r.patch('/ops/complaints/:id', { schema: { tags: ['ops'], ...idP, body: OpsComplaintPatchIn } },
+      async (req) => svc.opsSetComplaint(await opsWrite(req, (id) => repo.complaintById(id), req.params.id), req.params.id, req.body.status));
 
     /* ----- live streams (SSE). EventSource cannot set headers, so the token rides in the query. ----- */
     const sse = (req: FastifyRequest, reply: FastifyReply, sub: (send: (e: StreamEvent) => void) => () => void) => {
@@ -266,8 +281,10 @@ export async function buildApp({ repo, logger = true, now }: AppDeps) {
       sse(req, reply, (send) => hub.subscribe(u.sub, send));
     });
     r.get('/ops/stream', { schema: { tags: ['live'], querystring: z.object({ token: z.string().optional() }) }, config: { rateLimit: false } }, async (req, reply) => {
-      if (!config.demo) { const u = tokenUser(req.query, req.headers.authorization); if (!(await svc.isOps(u.sub))) throw new HttpError(403, 'Command Centre access only'); }
-      sse(req, reply, (send) => hub.subscribeOps(send));
+      let full = false;
+      try { full = await svc.isOps(tokenUser(req.query, req.headers.authorization).sub); } catch { /* anonymous */ }
+      if (!full && !config.demo) throw new HttpError(403, 'Command Centre access only');
+      sse(req, reply, (send) => hub.subscribeOps(send, full));
     });
   }, { prefix: '/v1' });
 

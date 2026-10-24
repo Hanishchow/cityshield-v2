@@ -62,7 +62,8 @@ const schema = /* GraphQL */ `
   }
 `;
 
-interface Ctx { uid: () => Promise<string>; ops: () => Promise<void> }
+/** ops() resolves true for an operator (every case), false for a demo visitor (public city records only). */
+interface Ctx { uid: () => Promise<string>; ops: () => Promise<boolean> }
 declare module 'mercurius' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface MercuriusContext extends Ctx {}
@@ -80,7 +81,7 @@ export async function registerGraphql(app: FastifyInstance, svc: CityShield, rep
       notifications: async (_: unknown, a: { kind?: 'emergency' | 'service' | 'complaint' }, c: Ctx) => svc.notifications(await c.uid(), a.kind),
       nearbyHospitals: (_: unknown, a: { lat: number; lng: number }) => svc.nearby('hospital', LocationIn.pick({ lat: true, lng: true }).parse(a)),
       opsKpis: async (_: unknown, __: unknown, c: Ctx) => { await c.ops(); return svc.opsKpis(); },
-      opsIncidents: async (_: unknown, __: unknown, c: Ctx) => { await c.ops(); return svc.opsIncidents(); },
+      opsIncidents: async (_: unknown, __: unknown, c: Ctx) => svc.opsIncidents((await c.ops()) ? 'all' : 'public'),
       wards: async (_: unknown, __: unknown, c: Ctx) => { await c.ops(); return svc.wards(); },
     },
     Mutation: {
@@ -118,10 +119,12 @@ export async function registerGraphql(app: FastifyInstance, svc: CityShield, rep
         try { await req.jwtVerify(); return req.user.sub; } catch { throw new HttpError(401, 'Sign-in required'); }
       },
       ops: async () => {
-        if (config.demo) return;
-        let uid: string;
-        try { await req.jwtVerify(); uid = req.user.sub; } catch { throw new HttpError(401, 'Sign-in required'); }
-        if (!(await svc.isOps(uid))) throw new HttpError(403, 'Command Centre access only');
+        let uid: string | null = null;
+        try { await req.jwtVerify(); uid = req.user.sub; } catch { /* anonymous */ }
+        if (uid && (await svc.isOps(uid))) return true;
+        if (config.demo) return false;
+        if (!uid) throw new HttpError(401, 'Sign-in required');
+        throw new HttpError(403, 'Command Centre access only');
       },
     }),
   });

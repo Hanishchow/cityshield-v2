@@ -8,11 +8,20 @@ const KORAMANGALA = { lat: 12.9352, lng: 77.6245, address: 'Koramangala 5th Bloc
 
 async function setup() {
   let clock = Date.now();
-  const { app, svc } = await buildApp({ repo: new MemoryRepo(), logger: false, now: () => clock });
+  const repo = new MemoryRepo();
+  const { app, svc, hub } = await buildApp({ repo, logger: false, now: () => clock });
   await svc.seedPublic();
-  const s = (await app.inject({ method: 'POST', url: '/v1/auth/device', payload: { deviceId: 'test-device-0001' } })).json() as Session;
-  const auth = { authorization: `Bearer ${s.token}` };
-  return { app, svc, s, auth, advance: async (ms: number) => { clock += ms; await svc.tick(); } };
+  const signIn = async (deviceId: string) => {
+    const s = (await app.inject({ method: 'POST', url: '/v1/auth/device', payload: { deviceId } })).json() as Session;
+    return { s, auth: { authorization: `Bearer ${s.token}` } };
+  };
+  const { s, auth } = await signIn('test-device-0001');
+  const operator = async () => {
+    const o = await signIn('test-operator-0001');
+    await repo.updateUser(o.s.user.id, { role: 'operator' });
+    return o.auth;
+  };
+  return { app, svc, hub, repo, s, auth, signIn, operator, advance: async (ms: number) => { clock += ms; await svc.tick(); } };
 }
 
 test('health reports the live store and capabilities', async () => {
@@ -62,7 +71,7 @@ test('units arrive and the incident goes on scene', async () => {
 });
 
 test('complaints are auto-routed, then assigned with a crew', async () => {
-  const { app, auth, advance } = await setup();
+  const { app, auth, advance, operator } = await setup();
   const r = await app.inject({ method: 'POST', url: '/v1/complaints', headers: auth, payload: { category: 'light', description: 'Dark stretch', location: { ...KORAMANGALA, address: '6th Cross, Koramangala' } } });
   assert.equal(r.statusCode, 201);
   const c = r.json() as Complaint;
@@ -74,7 +83,7 @@ test('complaints are auto-routed, then assigned with a crew', async () => {
   assert.equal(after.status, 'progress');
   assert.ok(after.crew, 'a repair crew is dispatched');
   /* operator resolves it */
-  const res = (await app.inject({ method: 'PATCH', url: `/v1/ops/complaints/${c.id}`, headers: auth, payload: { status: 'resolved' } })).json() as Complaint;
+  const res = (await app.inject({ method: 'PATCH', url: `/v1/ops/complaints/${c.id}`, headers: await operator(), payload: { status: 'resolved' } })).json() as Complaint;
   assert.equal(res.status, 'resolved');
 });
 
@@ -137,6 +146,39 @@ test('responses are compressed and live data is never cached', async () => {
   assert.equal(r.headers['cache-control'], 'no-store');
   const n = await app.inject({ url: '/v1/nearby/hospitals?lat=12.9352&lng=77.6245' });
   assert.equal(n.headers['cache-control'], 'private, max-age=300');
+});
+
+test('a citizen\'s cases are visible only to that citizen (and operators)', async () => {
+  const { app, auth, signIn, operator } = await setup();
+  const mine = (await app.inject({ method: 'POST', url: '/v1/incidents', headers: auth, payload: { kind: 'police', location: KORAMANGALA } })).json() as Incident;
+  const myComplaint = (await app.inject({ method: 'POST', url: '/v1/complaints', headers: auth, payload: { category: 'pothole', location: KORAMANGALA } })).json() as Complaint;
+  const other = (await signIn('test-device-0002')).auth;
+  assert.equal((await app.inject({ url: `/v1/incidents/${mine.id}`, headers: other })).statusCode, 404);
+  assert.equal((await app.inject({ url: `/v1/complaints/${myComplaint.id}`, headers: other })).statusCode, 404);
+  const theirs = (await app.inject({ url: '/v1/incidents', headers: other })).json().items as Incident[];
+  assert.ok(!theirs.some((i) => i.id === mine.id));
+  /* the public demo Command Centre never shows a citizen's case */
+  const pub = (await app.inject('/v1/ops/incidents')).json().items as Incident[];
+  assert.ok(pub.length > 0, 'public city records are still shown');
+  assert.ok(pub.every((i) => i.userId == null));
+  const asCitizen = (await app.inject({ url: '/v1/ops/incidents', headers: other })).json().items as Incident[];
+  assert.ok(asCitizen.every((i) => i.userId == null));
+  /* ...nor lets anyone but an operator change one */
+  assert.equal((await app.inject({ method: 'PATCH', url: `/v1/ops/complaints/${myComplaint.id}`, payload: { status: 'resolved' } })).statusCode, 404);
+  assert.equal((await app.inject({ method: 'PATCH', url: `/v1/ops/incidents/${mine.id}`, headers: other, payload: { status: 'resolved' } })).statusCode, 404);
+  /* operators see everything */
+  const ops = (await app.inject({ url: '/v1/ops/incidents', headers: await operator() })).json().items as Incident[];
+  assert.ok(ops.some((i) => i.id === mine.id));
+});
+
+test('the public ops stream never carries a citizen\'s events', async () => {
+  const { app, hub, auth } = await setup();
+  const anon: string[] = [], full: string[] = [];
+  hub.subscribeOps((e) => { if (e.type === 'incident') anon.push(e.incident.id); }, false);
+  hub.subscribeOps((e) => { if (e.type === 'incident') full.push(e.incident.id); }, true);
+  const inc = (await app.inject({ method: 'POST', url: '/v1/incidents', headers: auth, payload: { kind: 'fire', location: KORAMANGALA } })).json() as Incident;
+  assert.ok(full.includes(inc.id), 'operators get it');
+  assert.ok(!anon.includes(inc.id), 'the public does not');
 });
 
 test('client error reports are accepted and validated', async () => {

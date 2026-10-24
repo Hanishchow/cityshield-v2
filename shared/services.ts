@@ -341,8 +341,9 @@ export class CityShield {
       await this.repo.updateUnit(a.unitId, home ? { status: 'available', lat: home.lat, lng: home.lng } : { status: 'available' });
     }
   }
-  private publishIncident(i: Incident) { this.emit(i.userId, { type: 'incident', incident: i }); if (i.userId) this.emit(null, { type: 'incident', incident: i }); }
-  private publishComplaint(c: Complaint) { this.emit(c.userId, { type: 'complaint', complaint: c }); if (c.userId) this.emit(null, { type: 'complaint', complaint: c }); }
+  /* The Command Centre channel gets every record; the hub decides which ops viewers may see a citizen's. */
+  private publishIncident(i: Incident) { if (i.userId) this.emit(i.userId, { type: 'incident', incident: i }); this.emit(null, { type: 'incident', incident: i }); }
+  private publishComplaint(c: Complaint) { if (c.userId) this.emit(c.userId, { type: 'complaint', complaint: c }); this.emit(null, { type: 'complaint', complaint: c }); }
 
   /* ================= command centre ================= */
   async isOps(userId: string | null) {
@@ -365,10 +366,11 @@ export class CityShield {
       complaintsResolvedToday: stats.resolvedToday, complaintsReceivedToday: stats.receivedToday, unitsOnDuty: units.length, unitsByKind: byKind,
     };
   }
-  async opsIncidents(): Promise<Incident[]> {
+  /** 'public' = only city records with no citizen behind them (what an anonymous demo visitor may see). */
+  async opsIncidents(scope: 'all' | 'public' = 'all'): Promise<Incident[]> {
     const day = this.now() - 86_400_000;
-    const recent = await this.repo.incidents({ since: day, limit: 40 });
-    return recent.filter((i) => i.status !== 'cancelled').slice(0, 14);
+    const recent = await this.repo.incidents({ since: day, limit: 40, publicOnly: scope === 'public' });
+    return recent.filter((i) => i.status !== 'cancelled' && (scope === 'all' || !i.userId)).slice(0, 14);
   }
   async opsUnits(): Promise<Unit[]> {
     return (await this.repo.units()).filter((u) => u.patrol || u.stationId);
