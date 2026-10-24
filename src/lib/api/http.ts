@@ -12,7 +12,19 @@ type Json = Record<string, unknown> | unknown[] | undefined;
  */
 export const TUNNEL_HEADERS: Record<string, string> = { 'ngrok-skip-browser-warning': '1' };
 
+/* Endpoints that work without a session; everything else is personal data. */
+const PUBLIC = /^\/(health|graphql|v1\/(auth|ops|nearby|geo|client-errors|feedback|media)\b)/;
+let pendingSession: Promise<void> | null = null;
+/** On a first visit, personal requests wait for one shared device session instead of failing with 401. */
+function ensureSession(): Promise<void> {
+  pendingSession ??= call<{ token: string }>('POST', '/v1/auth/device', { deviceId: deviceId() })
+    .then((s) => setToken('live', s.token))
+    .finally(() => { pendingSession = null; });
+  return pendingSession;
+}
+
 async function call<T>(method: string, path: string, body?: Json | FormData, headers: Record<string, string> = {}): Promise<T> {
+  if (!getToken('live') && !PUBLIC.test(path)) await ensureSession();
   const h: Record<string, string> = { ...TUNNEL_HEADERS, ...headers };
   const tok = getToken('live');
   if (tok) h.authorization = `Bearer ${tok}`;
