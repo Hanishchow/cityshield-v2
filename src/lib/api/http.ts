@@ -1,4 +1,4 @@
-import type { StreamEvent } from '@shared/contract.ts';
+import type { Session, StreamEvent } from '@shared/contract.ts';
 import { ApiError, type Backend } from './backend.ts';
 import { deviceId, getToken, setToken } from './identity.ts';
 
@@ -14,17 +14,21 @@ export const TUNNEL_HEADERS: Record<string, string> = { 'ngrok-skip-browser-warn
 
 /* Endpoints that work without a session; everything else is personal data. */
 const PUBLIC = /^\/(health|graphql|v1\/(auth|ops|nearby|geo|client-errors|feedback|media)\b)/;
-let pendingSession: Promise<void> | null = null;
-/** On a first visit, personal requests wait for one shared device session instead of failing with 401. */
-function ensureSession(): Promise<void> {
-  pendingSession ??= call<{ token: string }>('POST', '/v1/auth/device', { deviceId: deviceId() })
-    .then((s) => setToken('live', s.token))
+let pendingSession: Promise<Session> | null = null;
+/**
+ * One device-session request at a time. On a first visit the app's sign-in and the
+ * personal queries that fire alongside it share this request instead of each
+ * creating a session (or failing with 401).
+ */
+function deviceSession(): Promise<Session> {
+  pendingSession ??= call<Session>('POST', '/v1/auth/device', { deviceId: deviceId() })
+    .then((s) => { setToken('live', s.token); return s; })
     .finally(() => { pendingSession = null; });
   return pendingSession;
 }
 
 async function call<T>(method: string, path: string, body?: Json | FormData, headers: Record<string, string> = {}): Promise<T> {
-  if (!getToken('live') && !PUBLIC.test(path)) await ensureSession();
+  if (!getToken('live') && !PUBLIC.test(path)) await deviceSession();
   const h: Record<string, string> = { ...TUNNEL_HEADERS, ...headers };
   const tok = getToken('live');
   if (tok) h.authorization = `Bearer ${tok}`;
@@ -95,16 +99,12 @@ export function createHttpBackend(): Backend {
   return {
     mode: 'live',
     health: () => get('/health'),
-    async session() {
-      const s = await call<import('@shared/contract.ts').Session>('POST', '/v1/auth/device', { deviceId: deviceId() });
-      setToken('live', s.token);
-      return s;
-    },
+    session: () => deviceSession(),
     me: () => get('/v1/me'),
     updateMe: (p) => call('PATCH', '/v1/me', p),
     otpRequest: (phone) => call('POST', '/v1/auth/otp/request', { phone }),
     async otpVerify(phone, code) {
-      const s = await call<import('@shared/contract.ts').Session>('POST', '/v1/auth/otp/verify', { phone, code, deviceId: deviceId() });
+      const s = await call<Session>('POST', '/v1/auth/otp/verify', { phone, code, deviceId: deviceId() });
       setToken('live', s.token);
       return s;
     },
