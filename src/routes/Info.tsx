@@ -63,7 +63,7 @@ export function About() {
     ['clipboard', 'Easy reporting', 'Photo + location, routed automatically.'], ['nodes', 'Connected services', 'One incident record shared by every agency.']];
   return (
     <Page title={t('about')} sub={t('tagline')}>
-      <div className="rounded-[22px] bg-[linear-gradient(120deg,var(--navy-900),var(--navy-700))] p-5"><Logo tagline={t('tagline')} /></div>
+      <div className="rounded-2xl bg-navy-900 p-5"><Logo tagline={t('tagline')} /></div>
       <Card className="p-4 sm:p-5">
         <p className="text-[15px] text-fg-2">City Shield brings emergency response and civic complaints for Bengaluru into one app — so citizens get help faster and agencies share one live picture of the city.</p>
         <ul className="mt-4 flex flex-col gap-3.5">

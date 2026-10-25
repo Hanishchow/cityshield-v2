@@ -65,7 +65,7 @@ function HomeMobile() {
         </div>
       </section>
       <motion.div variants={stagger} initial="hidden" animate="show" className="flex flex-col gap-3.5 rounded-t-[26px] bg-bg px-4 pt-5 pb-6">
-        <motion.button variants={rise} onClick={startSos} className="flex items-center gap-3.5 rounded-card bg-gradient-to-br from-[#EE4248] to-sos-deep p-4 text-left text-white shadow-[0_14px_30px_-12px_rgb(220_47_53/0.7)] active:scale-[0.99]">
+        <motion.button variants={rise} onClick={startSos} className="flex items-center gap-3.5 rounded-card bg-sos p-4 text-left text-white shadow-[0_14px_30px_-12px_rgb(220_47_53/0.7)] active:scale-[0.99]">
           <span className="grid size-12 place-items-center rounded-2xl bg-white/15"><Icon name="siren" className="size-6" /></span>
           <div className="flex-1"><div className="text-[17.5px] font-bold">{t('oneTap')}</div><div className="text-[13.5px] text-white/80">{t('police')} · {t('ambulance')} · {t('fire')} · {t('civic')}</div></div>
           <ChevronRight className="size-5" />
@@ -107,7 +107,7 @@ function HomeDesktop() {
   const hosp = amb?.destinationHospitalId ? stationById(amb.destinationHospitalId) : null;
   return (
     <motion.div variants={stagger} initial="hidden" animate="show" className="mx-auto flex max-w-[1320px] flex-col gap-5 p-6">
-      <motion.section variants={rise} className="relative h-[380px] overflow-hidden rounded-[24px] bg-navy-900 text-white shadow-float">
+      <motion.section variants={rise} className="relative h-[380px] overflow-hidden rounded-2xl bg-navy-900 text-white shadow-float">
         <div className="absolute inset-y-0 right-0 w-[70%]"><Hero3D fallback={<HeroArt2D className="absolute inset-0" slice />} /></div>
         <div className="absolute inset-0 bg-[linear-gradient(90deg,var(--navy-900)_30%,rgb(24_48_110/0.65)_46%,rgb(24_48_110/0)_66%)]" />
         <div className="pointer-events-none absolute top-1/2 right-10 hidden -translate-y-1/2 wide:block"><ShieldMark className="h-[230px] animate-[float_6s_ease-in-out_infinite] drop-shadow-[0_24px_40px_rgb(5_15_45/0.55)]" title="City Shield" /></div>
@@ -197,7 +197,7 @@ function FeatureStrip() {
   const t = useT();
   const F: [string, string][] = [['timer', 'Faster Response'], ['pin', 'Live Tracking'], ['clock', 'Real-Time Updates'], ['clipboard', 'Easy Reporting'], ['users', 'Connected Services']];
   return (
-    <section className="flex items-center gap-8 rounded-[22px] bg-[linear-gradient(110deg,var(--navy-900),var(--navy-800))] px-7 py-5 text-white">
+    <section className="flex items-center gap-8 rounded-2xl bg-navy-900 px-7 py-5 text-white">
       <Logo tagline={t('tagline')} />
       <div className="flex flex-1 flex-wrap justify-center gap-x-7 gap-y-2">
         {F.map(([i, l]) => <div key={l} className="flex items-center gap-2 text-[14px] font-semibold text-white/85"><Icon name={i} className="size-[18px] text-sky" />{l}</div>)}

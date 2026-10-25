@@ -32,14 +32,14 @@ export function Helplines({ extra = false }: { extra?: boolean }) {
 function SosPanel() {
   const t = useT(), me = useMe().data, upd = useUpdateMe(), deco = useDecor3D();
   return (
-    <div className="relative flex flex-col items-center overflow-hidden rounded-none bg-[radial-gradient(120%_70%_at_50%_30%,#2A0D1C_0%,#0A1330_55%,#060C1F_100%)] px-5 pt-8 pb-8 text-center text-white desk:rounded-[22px]">
+    <div className="relative flex flex-col items-center overflow-hidden rounded-none bg-[#1A0A12] px-5 pt-8 pb-8 text-center text-white desk:rounded-2xl">
       <h1 className="text-[28px] font-bold tracking-[-0.02em]">{t('sosTitle')}</h1>
       <p className="mt-1 text-[15px] text-white/70">{t('tapCall')}</p>
       <div className="relative my-7 grid size-[250px] place-items-center">
         {deco ? <Suspense fallback={null}><div className="absolute -inset-20"><SosShockwave level={0} /></div></Suspense>
           : <><span className="absolute inset-6 animate-pulse-ring rounded-full bg-sos/30" /><span className="absolute inset-6 animate-pulse-ring rounded-full bg-sos/25 [animation-delay:1.2s]" /></>}
         <button onClick={startSos} aria-label="Send SOS"
-          className="relative grid size-[176px] place-items-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#FF6B70,#DC2F35_45%,#9E1219)] shadow-[0_0_0_10px_rgb(220_47_53/0.18),0_24px_60px_-10px_rgb(220_47_53/0.8),inset_0_2px_0_rgb(255_255_255/0.25)] transition active:scale-95">
+          className="relative grid size-[176px] place-items-center rounded-full bg-sos shadow-[0_0_0_8px_rgb(220_47_53/0.16)] transition active:scale-95">
           <span className="flex flex-col items-center gap-1"><Phone className="size-9" /><b className="text-[30px] font-bold tracking-[0.06em]">SOS</b></span>
         </button>
       </div>

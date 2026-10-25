@@ -60,7 +60,7 @@ class RouteBoundary extends Component<{ children: ReactNode }, { error: Error | 
 
 function Splash() {
   return (
-    <div className="grid min-h-dvh place-items-center bg-[radial-gradient(120%_80%_at_50%_30%,var(--navy-800),var(--navy-950))]">
+    <div className="grid min-h-dvh place-items-center bg-navy-950">
       <div className="flex flex-col items-center gap-5">
         <ShieldMark className="h-24 animate-[pulse_2s_ease-in-out_infinite]" glow />
         <div className="text-[21px] font-bold tracking-[0.12em] text-white">CITY SHIELD</div>

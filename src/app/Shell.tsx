@@ -37,9 +37,9 @@ function Sidebar() {
   const active = useIncidents(true).data ?? [];
   const live = (k: string) => active.some((i) => i.assignments.some((a) => a.kind === k && a.arrivedAt == null));
   return (
-    <aside className="sticky top-0 hidden h-dvh w-[268px] shrink-0 flex-col overflow-y-auto bg-[linear-gradient(180deg,var(--navy-900),var(--navy-950))] px-3 py-5 text-white desk:flex" aria-label="Main navigation">
+    <aside className="sticky top-0 hidden h-dvh w-[268px] shrink-0 flex-col overflow-y-auto bg-navy-950 px-3 py-5 text-white desk:flex" aria-label="Main navigation">
       <Logo className="px-2 pb-5" tagline={t('tagline')} />
-      <button onClick={startSos} className="mb-3 flex items-center gap-3 rounded-2xl bg-gradient-to-br from-[#EE4248] to-sos-deep px-3.5 py-3 text-left shadow-[0_12px_28px_-10px_rgb(220_47_53/0.75)] transition hover:brightness-110">
+      <button onClick={startSos} className="mb-3 flex items-center gap-3 rounded-2xl bg-sos px-3.5 py-3 text-left transition hover:brightness-110">
         <Icon name="siren" className="size-6" />
         <span><b className="block text-[15.5px]">{t('sosTitle')}</b><small className="text-[12.5px] text-white/80">{t('police')} · {t('ambulance')} · {t('fire')}</small></span>
       </button>

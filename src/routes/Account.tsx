@@ -26,7 +26,7 @@ function ProfileCard() {
   if (!me) return null;
   return (
     <Card className="flex items-center gap-4 p-4 sm:p-5">
-      <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-cobalt to-navy-900 text-[24px] font-bold text-white">{initials(me.name)}</span>
+      <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-navy-800 text-[24px] font-bold text-white">{initials(me.name)}</span>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[20px] font-bold">{me.name}</div>
         <div className="text-[14px] text-fg-2">{me.phone ?? 'No mobile number yet'} {me.phoneVerified && <Chip tone="green" className="ml-1">Verified</Chip>}</div>

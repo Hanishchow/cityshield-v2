@@ -53,7 +53,7 @@ function Shell({ children, tone = 'sos', label }: { children: React.ReactNode; t
   return (
     <div role="alertdialog" aria-modal="true" aria-label={label}
       className={cn('flex size-full flex-col items-center justify-center overflow-y-auto px-6 py-10 text-center text-white',
-        tone === 'sos' ? 'bg-[radial-gradient(120%_80%_at_50%_30%,#3A0D16_0%,#0A1330_60%,#050B1E_100%)]' : 'bg-[radial-gradient(120%_80%_at_50%_20%,#13285E_0%,#0A1533_55%,#050B1E_100%)]')}>
+        tone === 'sos' ? 'bg-[#1A0A12]' : 'bg-navy-950')}>
       {children}
     </div>
   );
@@ -73,14 +73,14 @@ function SosChoose() {
   const BG: Record<SosService, string> = { police: '#E3ECFF', ambulance: '#FFE8E8', fire: '#FFEBDD' };
   return (
     <div role="dialog" aria-modal="true" aria-label="Choose emergency service"
-      className="flex size-full flex-col items-center overflow-y-auto bg-[radial-gradient(120%_80%_at_50%_20%,#3A0D16_0%,#0A1330_60%,#050B1E_100%)] px-5 pt-[calc(34px+env(safe-area-inset-top,0px))] pb-10 text-center text-white">
+      className="flex size-full flex-col items-center overflow-y-auto bg-[#1A0A12] px-5 pt-[calc(34px+env(safe-area-inset-top,0px))] pb-10 text-center text-white">
       <h2 className="text-[28px] font-bold">What do you need?</h2>
       <p className="mt-2 max-w-[400px] text-[15px] text-white/75">Pick a service — it will be alerted with your live location, {me ? shortArea(me.area.label) : '…'}.</p>
       <div className="mt-5 flex w-full max-w-[420px] flex-col gap-3">
         {(['police', 'ambulance', 'fire'] as const).map((k, i) => (
           <motion.button key={k} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 + i * 0.06 }}
             onClick={() => openOverlay({ kind: 'sos-countdown', svc: k })} aria-label={t(k)}
-            className="flex w-full items-center gap-3.5 rounded-[20px] border border-white/15 bg-white/[0.07] py-2.5 pr-3.5 pl-2.5 text-left transition hover:bg-white/[0.12] active:scale-[0.98]">
+            className="flex w-full items-center gap-3.5 rounded-2xl border border-white/15 bg-white/[0.07] py-2.5 pr-3.5 pl-2.5 text-left transition hover:bg-white/[0.12] active:scale-[0.98]">
             <span className="grid h-[84px] w-[112px] shrink-0 place-items-center overflow-hidden rounded-[14px] [&>svg]:block [&>svg]:size-full" style={{ background: BG[k] }} dangerouslySetInnerHTML={{ __html: SOS_ART[k] }} />
             <span className="min-w-0 flex-1"><b className="block text-[19px] leading-tight font-bold">{t(k)}</b><span className="mt-1 block text-[13.5px] text-white/70">{SOS_SUB[k]}</span></span>
             <ChevronRight className="size-5 text-white/60" />
@@ -246,7 +246,7 @@ function VideoScreen() {
   const me = useMe().data;
   useEscClose();
   return (
-    <div role="dialog" aria-modal="true" aria-label="Video call" className="relative size-full overflow-hidden bg-navy-950 text-white desk:m-auto desk:mt-[8vh] desk:h-[min(660px,84vh)] desk:w-[min(980px,88vw)] desk:rounded-3xl desk:shadow-float">
+    <div role="dialog" aria-modal="true" aria-label="Video call" className="relative size-full overflow-hidden bg-navy-950 text-white desk:m-auto desk:mt-[8vh] desk:h-[min(660px,84vh)] desk:w-[min(980px,88vw)] desk:rounded-2xl desk:shadow-float">
       <OfficerArt className="absolute inset-0" slice />
       <div className="absolute inset-x-0 top-0 z-[1] h-40 bg-gradient-to-b from-navy-950/75 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 z-[1] h-52 bg-gradient-to-t from-navy-950/80 to-transparent" />

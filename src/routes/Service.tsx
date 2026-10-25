@@ -54,7 +54,7 @@ export default function Service() {
   }
   return (
     <div className="mx-auto grid max-w-[1320px] grid-cols-[1.35fr_1fr] items-start gap-5 p-6">
-      <div className="sticky top-[96px]">{map('h-[calc(100dvh-120px)] min-h-[520px] rounded-[22px] border border-line shadow-card')}</div>
+      <div className="sticky top-[96px]">{map('h-[calc(100dvh-120px)] min-h-[520px] rounded-2xl border border-line shadow-card')}</div>
       <div className="flex flex-col gap-4">
         {incident && assignment ? (
           <>

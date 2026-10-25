@@ -26,7 +26,7 @@ export function Sheet({ open, onOpenChange, title, children, wide, description }
           <Dialog.Overlay className="fixed inset-0 z-50 bg-navy-950/55 backdrop-blur-[2px]" />
           <Dialog.Content
             aria-describedby={undefined}
-            className={cn('fixed top-1/2 left-1/2 z-50 max-h-[86vh] w-[calc(100vw-48px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl border border-line bg-surface p-6 shadow-float outline-none', wide ? 'max-w-[760px]' : 'max-w-[480px]')}
+            className={cn('fixed top-1/2 left-1/2 z-50 max-h-[86vh] w-[calc(100vw-48px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-line bg-surface p-6 shadow-float outline-none', wide ? 'max-w-[760px]' : 'max-w-[480px]')}
           >
             {head(Dialog.Title)}
             {description && <Dialog.Description className="-mt-2 mb-3 text-[14px] text-fg-2">{description}</Dialog.Description>}
