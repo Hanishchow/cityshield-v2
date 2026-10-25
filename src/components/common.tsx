@@ -78,7 +78,7 @@ export function NotificationRow({ n, onClick }: { n: Notification; onClick: () =
     <Row onClick={onClick} unread={n.readAt == null} className="items-start">
       <IconChip icon={n.icon} tone={n.tone} round size="md" />
       <div className="min-w-0 flex-1">
-        <div className={cn('text-[15px]', n.readAt == null ? 'font-extrabold' : 'font-semibold')}>{n.title}</div>
+        <div className={cn('text-[15px]', n.readAt == null ? 'font-bold' : 'font-semibold')}>{n.title}</div>
         <div className="mt-0.5 text-[13.5px] text-fg-2">{n.body}</div>
       </div>
       <span className="shrink-0 pt-0.5 text-[12.5px] text-fg-3 tabular">{new Date(n.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
@@ -110,7 +110,7 @@ export function Kpi({ icon, label, value, delta, up }: { icon: string; label: st
   return (
     <div className="rounded-card border border-line bg-surface p-4 shadow-card sm:p-5">
       <div className="flex items-center gap-2 text-[13.5px] font-semibold text-fg-2"><Icon name={icon} className="size-4" />{label}</div>
-      <div className="mt-2 text-[28px] font-extrabold tracking-[-0.02em] tabular sm:text-[30px]">{value}</div>
+      <div className="mt-2 text-[28px] font-bold tracking-[-0.02em] tabular sm:text-[30px]">{value}</div>
       {delta && <div className={cn('mt-1 text-[13px] font-semibold', up ? 'text-success' : 'text-fg-3')}>{delta}</div>}
     </div>
   );

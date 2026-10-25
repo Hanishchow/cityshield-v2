@@ -60,14 +60,14 @@ function HomeMobile() {
         </div>
         <div className="absolute bottom-6 left-5">
           <div className="text-[15px] text-white/75">{t(greetingKey())}</div>
-          <h1 className="text-[38px] leading-tight font-extrabold tracking-[-0.025em]">{me ? firstName(me.name) : <Skeleton className="h-9 w-40 bg-white/10" />}</h1>
+          <h1 className="text-[38px] leading-tight font-bold tracking-[-0.025em]">{me ? firstName(me.name) : <Skeleton className="h-9 w-40 bg-white/10" />}</h1>
           <div className="mt-1 flex items-center gap-1.5 text-[14px] text-white/80"><MapPin className="size-4" />{me?.city}</div>
         </div>
       </section>
       <motion.div variants={stagger} initial="hidden" animate="show" className="flex flex-col gap-3.5 rounded-t-[26px] bg-bg px-4 pt-5 pb-6">
         <motion.button variants={rise} onClick={startSos} className="flex items-center gap-3.5 rounded-card bg-gradient-to-br from-[#EE4248] to-sos-deep p-4 text-left text-white shadow-[0_14px_30px_-12px_rgb(220_47_53/0.7)] active:scale-[0.99]">
           <span className="grid size-12 place-items-center rounded-2xl bg-white/15"><Icon name="siren" className="size-6" /></span>
-          <div className="flex-1"><div className="text-[17.5px] font-extrabold">{t('oneTap')}</div><div className="text-[13.5px] text-white/80">{t('police')} · {t('ambulance')} · {t('fire')} · {t('civic')}</div></div>
+          <div className="flex-1"><div className="text-[17.5px] font-bold">{t('oneTap')}</div><div className="text-[13.5px] text-white/80">{t('police')} · {t('ambulance')} · {t('fire')} · {t('civic')}</div></div>
           <ChevronRight className="size-5" />
         </motion.button>
         <motion.div variants={rise}>
@@ -87,7 +87,7 @@ function HomeMobile() {
                 <Row key={a.unitId} chevron onClick={() => nav(`/service/${a.kind === 'crew' ? 'civic' : a.kind}`)}>
                   <IconChip icon={SERVICE_ICON[a.kind]} tone={a.kind} />
                   <div className="min-w-0 flex-1"><div className="text-[15px] font-bold">{SERVICES[a.kind].vehicle}</div><Status a={a} className="text-[13.5px] text-fg-2" /></div>
-                  <Eta a={a} className="text-[14.5px] font-extrabold tabular" />
+                  <Eta a={a} className="text-[14.5px] font-bold tabular" />
                 </Row>
               ))}
             </Card>
@@ -113,7 +113,7 @@ function HomeDesktop() {
         <div className="pointer-events-none absolute top-1/2 right-10 hidden -translate-y-1/2 wide:block"><ShieldMark className="h-[230px] animate-[float_6s_ease-in-out_infinite] drop-shadow-[0_24px_40px_rgb(5_15_45/0.55)]" title="City Shield" /></div>
         <div className="relative flex h-full max-w-[470px] flex-col justify-center px-9">
           <div className="text-[15px] text-white/75">{t(greetingKey())}</div>
-          <h1 className="text-[40px] leading-tight font-extrabold tracking-[-0.025em]">{me ? firstName(me.name) : '…'}</h1>
+          <h1 className="text-[40px] leading-tight font-bold tracking-[-0.025em]">{me ? firstName(me.name) : '…'}</h1>
           <div className="mt-1 flex items-center gap-1.5 text-[14px] text-white/75"><MapPin className="size-4" />{me?.city}</div>
           <p className="mt-3.5 max-w-[430px] text-[15.5px] leading-relaxed text-white/80">{t('police')}, {t('ambulance')}, {t('fire')} and {CIVIC.short} services — one tap away, tracked live.</p>
           <div className="mt-5 flex gap-3">
@@ -127,7 +127,7 @@ function HomeDesktop() {
         {SERVICE_KEYS.map((k: ServiceKey) => (
           <button key={k} onClick={() => nav(`/service/${k}`)} className="group flex flex-col items-start gap-3 rounded-card border border-line bg-surface p-5 text-left shadow-card transition hover:-translate-y-0.5 hover:shadow-float">
             <IconChip icon={SERVICE_ICON[k]} tone={k} size="lg" />
-            <div><div className="text-[16px] font-extrabold">{t(`svc_${k}` as TKey)}</div><div className="mt-0.5 text-[13.5px] text-fg-2">{SERVICE_SUB[k]}</div></div>
+            <div><div className="text-[16px] font-bold">{t(`svc_${k}` as TKey)}</div><div className="mt-0.5 text-[13.5px] text-fg-2">{SERVICE_SUB[k]}</div></div>
             <span className="mt-auto inline-flex items-center gap-1 text-[13.5px] font-bold text-primary">{t('liveTracking')}<ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" /></span>
           </button>
         ))}
@@ -142,14 +142,14 @@ function HomeDesktop() {
                 <div className="flex items-center gap-3">
                   <IconChip icon="ambulance" tone="ambulance" />
                   <div className="min-w-0 flex-1">
-                    <div className="text-[16.5px] font-extrabold">{SERVICES.ambulance.vehicle} <Chip className="ml-1 font-mono">{a.callSign}</Chip></div>
+                    <div className="text-[16.5px] font-bold">{SERVICES.ambulance.vehicle} <Chip className="ml-1 font-mono">{a.callSign}</Chip></div>
                     <Status a={a} className="text-[13.5px] text-fg-2" />
                   </div>
                 </div>
                 <Fill a={a} />
                 <div className="grid grid-cols-2 gap-3 rounded-2xl bg-surface-2 p-3.5">
-                  <div><div className="flex items-center gap-1.5 text-[13px] font-semibold text-fg-2"><Clock className="size-3.5" />{t('eta')}</div><Eta a={a} className="text-[24px] font-extrabold tabular" /></div>
-                  <div><div className="text-[13px] font-semibold text-fg-2">{t('arriving')}</div><Arrival a={a} className="text-[24px] font-extrabold tabular" /></div>
+                  <div><div className="flex items-center gap-1.5 text-[13px] font-semibold text-fg-2"><Clock className="size-3.5" />{t('eta')}</div><Eta a={a} className="text-[24px] font-bold tabular" /></div>
+                  <div><div className="text-[13px] font-semibold text-fg-2">{t('arriving')}</div><Arrival a={a} className="text-[24px] font-bold tabular" /></div>
                 </div>
                 {hosp && <div className="text-[13.5px] text-fg-2">Then to <b className="text-fg">{hosp.name}</b></div>}
                 <Button className="mt-auto" onClick={() => nav('/service/ambulance')}>Open live tracking<ChevronRight /></Button>
@@ -158,7 +158,7 @@ function HomeDesktop() {
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
               <ShieldMark className="h-16" />
-              <div className="text-[17px] font-extrabold">All clear</div>
+              <div className="text-[17px] font-bold">All clear</div>
               <p className="max-w-[320px] text-[14.5px] text-fg-2">No responders are on their way to you. Request any service in one tap, or press SOS in an emergency.</p>
               <Button variant="soft" onClick={() => nav('/track')}>Open live tracking</Button>
             </div>

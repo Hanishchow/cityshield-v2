@@ -61,7 +61,7 @@ export function ComplaintBody({ c }: { c: Complaint }) {
   return (
     <div className="flex flex-col gap-4">
       <Photo c={c} />
-      <div><div className="font-mono text-[13px] font-bold text-fg-3">{c.id} · {k.title}</div><h2 className="mt-0.5 text-[21px] leading-tight font-extrabold">{c.title}</h2></div>
+      <div><div className="font-mono text-[13px] font-bold text-fg-3">{c.id} · {k.title}</div><h2 className="mt-0.5 text-[21px] leading-tight font-bold">{c.title}</h2></div>
       <Kv icon={<MapPin />} k={t('location')}>{c.address}</Kv>
       <Kv icon={<Activity />} k={t('status')}><span className="mt-1 inline-block"><StatusChip status={c.status} /></span></Kv>
       <Kv icon={<Building2 />} k="Routed to">{c.agency}</Kv>
@@ -120,7 +120,7 @@ export function ComplaintDetail() {
       <div className="flex flex-col gap-5">
         <Card className="overflow-hidden">
           <Photo c={c} className="h-[300px]" />
-          <div className="flex flex-col gap-2 p-5"><div className="font-mono text-[13px] font-bold text-fg-3">{c.id} · {k.title}</div><h2 className="text-[22px] font-extrabold">{c.title}</h2>{c.description && <p className="text-[14.5px] text-fg-2">{c.description}</p>}</div>
+          <div className="flex flex-col gap-2 p-5"><div className="font-mono text-[13px] font-bold text-fg-3">{c.id} · {k.title}</div><h2 className="text-[22px] font-bold">{c.title}</h2>{c.description && <p className="text-[14.5px] text-fg-2">{c.description}</p>}</div>
         </Card>
         <Card className="overflow-hidden">
           <CardHeader title={t('trackMap')} right={res ? <Chip tone="green">{t('resolved')}</Chip> : c.crew ? <Chip tone="blue"><Label a={c.crew} /></Chip> : <Chip tone="amber">Awaiting assignment</Chip>} />
@@ -134,7 +134,7 @@ export function ComplaintDetail() {
           <Kv icon={<Building2 />} k="Routed to">{c.agency}</Kv>
           <Kv icon={<Clock />} k={t('reported')}>{fmtWhen(c.createdAt)}</Kv>
         </Card>
-        <Card className="p-5"><h2 className="mb-4 text-[16px] font-extrabold">Progress</h2><Timeline items={c.timeline} /></Card>
+        <Card className="p-5"><h2 className="mb-4 text-[16px] font-bold">Progress</h2><Timeline items={c.timeline} /></Card>
       </div>
     </div>
   );

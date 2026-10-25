@@ -74,7 +74,7 @@ function SosChoose() {
   return (
     <div role="dialog" aria-modal="true" aria-label="Choose emergency service"
       className="flex size-full flex-col items-center overflow-y-auto bg-[radial-gradient(120%_80%_at_50%_20%,#3A0D16_0%,#0A1330_60%,#050B1E_100%)] px-5 pt-[calc(34px+env(safe-area-inset-top,0px))] pb-10 text-center text-white">
-      <h2 className="text-[28px] font-extrabold">What do you need?</h2>
+      <h2 className="text-[28px] font-bold">What do you need?</h2>
       <p className="mt-2 max-w-[400px] text-[15px] text-white/75">Pick a service — it will be alerted with your live location, {me ? shortArea(me.area.label) : '…'}.</p>
       <div className="mt-5 flex w-full max-w-[420px] flex-col gap-3">
         {(['police', 'ambulance', 'fire'] as const).map((k, i) => (
@@ -82,7 +82,7 @@ function SosChoose() {
             onClick={() => openOverlay({ kind: 'sos-countdown', svc: k })} aria-label={t(k)}
             className="flex w-full items-center gap-3.5 rounded-[20px] border border-white/15 bg-white/[0.07] py-2.5 pr-3.5 pl-2.5 text-left transition hover:bg-white/[0.12] active:scale-[0.98]">
             <span className="grid h-[84px] w-[112px] shrink-0 place-items-center overflow-hidden rounded-[14px] [&>svg]:block [&>svg]:size-full" style={{ background: BG[k] }} dangerouslySetInnerHTML={{ __html: SOS_ART[k] }} />
-            <span className="min-w-0 flex-1"><b className="block text-[19px] leading-tight font-extrabold">{t(k)}</b><span className="mt-1 block text-[13.5px] text-white/70">{SOS_SUB[k]}</span></span>
+            <span className="min-w-0 flex-1"><b className="block text-[19px] leading-tight font-bold">{t(k)}</b><span className="mt-1 block text-[13.5px] text-white/70">{SOS_SUB[k]}</span></span>
             <ChevronRight className="size-5 text-white/60" />
           </motion.button>
         ))}
@@ -145,9 +145,9 @@ function SosCountdown({ svc }: { svc: SosService }) {
             style={{ strokeDashoffset: 0, animation: 'cs-cd 3s linear forwards' }} />
           <style>{`@keyframes cs-cd{to{stroke-dashoffset:${C.toFixed(1)}}}`}</style>
         </svg>
-        <b className="relative text-[64px] font-extrabold tabular" aria-live="assertive">{Math.max(n, 0) || <Check className="size-14" />}</b>
+        <b className="relative text-[64px] font-bold tabular" aria-live="assertive">{Math.max(n, 0) || <Check className="size-14" />}</b>
       </div>
-      <h2 className="mt-6 text-[26px] font-extrabold">{n > 0 ? <>Alerting {t(svc)} in {n}…</> : 'Sending…'}</h2>
+      <h2 className="mt-6 text-[26px] font-bold">{n > 0 ? <>Alerting {t(svc)} in {n}…</> : 'Sending…'}</h2>
       <p className="mt-2 max-w-[360px] text-[15px] text-white/75">Sharing your live location — {me ? shortArea(me.area.label) : '…'}.</p>
       <Button variant="overlay" size="lg" className="mt-8 min-w-[200px]" onClick={cancel} disabled={n <= 0} autoFocus><X />Cancel</Button>
       <p className="mt-6 text-[12.5px] text-white/50">Prototype — no real emergency service is contacted. In a real emergency call 112.</p>
@@ -173,7 +173,7 @@ function SosSent({ incidentId, svc }: { incidentId: string; svc: SosService }) {
         ) : (
           <div className="mx-auto mb-4 grid size-20 place-items-center rounded-full bg-success shadow-[0_0_0_10px_rgb(14_138_79/0.2)]"><Check className="size-10" strokeWidth={3} /></div>
         )}
-        <h2 className="text-[28px] font-extrabold">Help is on the way</h2>
+        <h2 className="text-[28px] font-bold">Help is on the way</h2>
         <p className="mt-2 text-[15px] text-white/75">
           {t(svc)} alerted at {fmtTime2(inc?.createdAt ?? openedAt)} · <span className="font-mono">{incidentId}</span>.{' '}
           {me?.shareLive ? 'Your live location is being shared with responders.' : `Your location (${shortArea(me?.area.label ?? '')}) was shared with responders.`}
@@ -186,7 +186,7 @@ function SosSent({ incidentId, svc }: { incidentId: string; svc: SosService }) {
                 <div className="text-[15px] font-bold">{SERVICES[a.kind].vehicle} · <span className="font-mono">{a.callSign}</span></div>
                 <Status a={a} className="text-[13.5px] text-white/65" />
               </div>
-              <Eta a={a} className="text-[16px] font-extrabold tabular" />
+              <Eta a={a} className="text-[16px] font-bold tabular" />
             </div>
           ))}
           {!as.length && <div className="rounded-2xl bg-white/[0.06] px-4 py-3 text-[14px] text-white/75">Your request is queued with the control room. Call 112 if this is life-threatening.</div>}
@@ -233,7 +233,7 @@ function CallScreen({ who }: { who: keyof typeof CALLEE }) {
       <div className="grid size-28 place-items-center overflow-hidden rounded-full bg-white/10 ring-4 ring-white/10">
         {c.av === 'officer' ? <OfficerArt className="size-full" slice /> : <Icon name={c.av} className="size-12" />}
       </div>
-      <h2 className="mt-5 text-[26px] font-extrabold">{c.n}</h2>
+      <h2 className="mt-5 text-[26px] font-bold">{c.n}</h2>
       <p className="mt-1 text-[15px] text-white/75 tabular" aria-live="polite">{st}</p>
       <p className="mt-1 text-[13.5px] text-white/55">{c.s}</p>
       <CallControls second={{ icon: 'speaker', label: 'Speaker' }} />
@@ -252,9 +252,9 @@ function VideoScreen() {
       <div className="absolute inset-x-0 bottom-0 z-[1] h-52 bg-gradient-to-t from-navy-950/80 to-transparent" />
       <div className="absolute top-5 right-5 left-5 z-[2] flex items-start justify-between">
         <div><b className="block text-[18px]">SI Ramesh Kumar</b><span className="text-[14px] text-white/75">{st === 'Calling…' ? 'Connecting video…' : st}</span></div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-sos px-2.5 py-1 text-[11.5px] font-extrabold tracking-wider"><i className="size-1.5 animate-live rounded-full bg-white" />LIVE</span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-sos px-2.5 py-1 text-[11.5px] font-bold tracking-wider"><i className="size-1.5 animate-live rounded-full bg-white" />LIVE</span>
       </div>
-      <div className="absolute right-5 bottom-32 z-[2] grid h-36 w-28 place-items-center rounded-2xl border border-white/20 bg-navy-800 text-[24px] font-extrabold desk:h-44 desk:w-32">{initials(me?.name ?? '')}</div>
+      <div className="absolute right-5 bottom-32 z-[2] grid h-36 w-28 place-items-center rounded-2xl border border-white/20 bg-navy-800 text-[24px] font-bold desk:h-44 desk:w-32">{initials(me?.name ?? '')}</div>
       <div className="absolute inset-x-0 bottom-10 z-[2]"><CallControls second={{ icon: 'flip', label: 'Switch camera' }} /></div>
       <p className="absolute inset-x-0 bottom-3 z-[2] text-center text-[12px] text-white/55">Simulated video call · prototype</p>
     </div>

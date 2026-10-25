@@ -15,7 +15,7 @@ export function Sheet({ open, onOpenChange, title, children, wide, description }
   const desk = useIsDesktop();
   const head = (Title: typeof Dialog.Title) => (
     <div className="mb-3.5 flex items-center justify-between gap-3">
-      <Title className="text-[18px] font-extrabold tracking-[-0.01em]">{title}</Title>
+      <Title className="text-[18px] font-bold tracking-[-0.01em]">{title}</Title>
       <button onClick={() => onOpenChange(false)} aria-label="Close" className="grid size-8 place-items-center rounded-full bg-surface-3 text-fg-2 hover:text-fg"><X className="size-4" /></button>
     </div>
   );

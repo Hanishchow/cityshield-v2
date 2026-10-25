@@ -1,8 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import '@fontsource-variable/inter';
-import '@fontsource-variable/montserrat';
-import '@fontsource-variable/jetbrains-mono';
+import '@fontsource-variable/public-sans';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
 import './index.css';
 import App from './app/App.tsx';
 import { registerServiceWorker } from './lib/pwa.ts';

@@ -20,7 +20,7 @@ export function Helplines({ extra = false }: { extra?: boolean }) {
     <>
       {HELPLINES.filter((h) => extra || h.num.length === 3).map((h) => (
         <Row key={h.num} onClick={() => openSheet({ kind: 'dial', num: h.num })}>
-          <span className="grid h-10 min-w-12 place-items-center rounded-xl bg-sos-soft px-2 font-mono text-[16px] font-extrabold text-sos">{h.num}</span>
+          <span className="grid h-10 min-w-12 place-items-center rounded-xl bg-sos-soft px-2 font-mono text-[16px] font-bold text-sos">{h.num}</span>
           <div className="min-w-0 flex-1"><div className="text-[15px] font-bold">{h.name}</div>{h.sub && <div className="text-[13.5px] text-fg-2">{h.sub}</div>}</div>
           <Phone className="size-[18px] text-fg-3" />
         </Row>
@@ -33,14 +33,14 @@ function SosPanel() {
   const t = useT(), me = useMe().data, upd = useUpdateMe(), deco = useDecor3D();
   return (
     <div className="relative flex flex-col items-center overflow-hidden rounded-none bg-[radial-gradient(120%_70%_at_50%_30%,#2A0D1C_0%,#0A1330_55%,#060C1F_100%)] px-5 pt-8 pb-8 text-center text-white desk:rounded-[22px]">
-      <h1 className="text-[28px] font-extrabold tracking-[-0.02em]">{t('sosTitle')}</h1>
+      <h1 className="text-[28px] font-bold tracking-[-0.02em]">{t('sosTitle')}</h1>
       <p className="mt-1 text-[15px] text-white/70">{t('tapCall')}</p>
       <div className="relative my-7 grid size-[250px] place-items-center">
         {deco ? <Suspense fallback={null}><div className="absolute -inset-20"><SosShockwave level={0} /></div></Suspense>
           : <><span className="absolute inset-6 animate-pulse-ring rounded-full bg-sos/30" /><span className="absolute inset-6 animate-pulse-ring rounded-full bg-sos/25 [animation-delay:1.2s]" /></>}
         <button onClick={startSos} aria-label="Send SOS"
           className="relative grid size-[176px] place-items-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#FF6B70,#DC2F35_45%,#9E1219)] shadow-[0_0_0_10px_rgb(220_47_53/0.18),0_24px_60px_-10px_rgb(220_47_53/0.8),inset_0_2px_0_rgb(255_255_255/0.25)] transition active:scale-95">
-          <span className="flex flex-col items-center gap-1"><Phone className="size-9" /><b className="text-[30px] font-extrabold tracking-[0.06em]">SOS</b></span>
+          <span className="flex flex-col items-center gap-1"><Phone className="size-9" /><b className="text-[30px] font-bold tracking-[0.06em]">SOS</b></span>
         </button>
       </div>
       <div className="grid w-full max-w-[420px] grid-cols-3 gap-2.5">
@@ -81,7 +81,7 @@ export default function Sos() {
           <CardHeader title="What happens when you press SOS" />
           <ol className="flex flex-col gap-4 px-5 pt-2 pb-5">
             {steps.map(([b, p], i) => (
-              <li key={b} className="flex gap-3.5"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-[14px] font-extrabold text-primary">{i + 1}</span><div><b className="text-[15px]">{b}</b><p className="text-[14px] text-fg-2">{p}</p></div></li>
+              <li key={b} className="flex gap-3.5"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-[14px] font-bold text-primary">{i + 1}</span><div><b className="text-[15px]">{b}</b><p className="text-[14px] text-fg-2">{p}</p></div></li>
             ))}
           </ol>
         </Card>

@@ -37,7 +37,7 @@ export default function Track() {
                 <Status a={a} className="text-[13.5px] text-fg-2" />
                 <Fill a={a} className="mt-2" />
               </div>
-              <Eta a={a} className="text-[14.5px] font-extrabold tabular" />
+              <Eta a={a} className="text-[14.5px] font-bold tabular" />
             </Row>
           );
         })}

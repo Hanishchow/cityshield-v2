@@ -35,7 +35,7 @@ export function RouteInfo({ a, incident }: { a: Assignment; incident: Incident }
       <div className="flex items-center gap-3">
         <IconChip icon={SERVICE_ICON[a.kind]} tone={a.kind === 'crew' ? 'amber' : a.kind} />
         <div className="min-w-0 flex-1">
-          <div className="text-[16.5px] leading-tight font-extrabold">{TITLE[a.kind]} <span className="font-mono">{a.callSign}</span></div>
+          <div className="text-[16.5px] leading-tight font-bold">{TITLE[a.kind]} <span className="font-mono">{a.callSign}</span></div>
           <div className="mt-0.5 text-[13.5px] text-fg-2">{SUB[a.kind]}</div>
         </div>
         <span className="lm-stx" data-tone={st.tone}><i /><b>{pr.done ? 'ARRIVED' : 'EN ROUTE'}</b></span>
@@ -50,9 +50,9 @@ export function RouteInfo({ a, incident }: { a: Assignment; incident: Incident }
         ))}
       </ol>
       <div className="grid grid-cols-3 rounded-2xl border border-line bg-surface-2 [&>div+div]:border-l [&>div+div]:border-line">
-        <div className="min-w-0 px-3 py-2.5"><small className="block text-[12.5px] font-semibold text-fg-2">Distance</small><b className="mt-0.5 block text-[18px] font-extrabold tabular">{pr.done ? '0 km' : `${pr.km} km`}</b></div>
-        <div className="min-w-0 px-3 py-2.5"><small className="block text-[12.5px] font-semibold text-fg-2">ETA</small><b className="mt-0.5 block text-[18px] font-extrabold tabular">{pr.done ? 'Arrived' : `${pr.etaMin} min`}</b></div>
-        <div className="min-w-0 px-3 py-2.5"><small className="block text-[12.5px] font-semibold text-fg-2">Heading</small><b className="mt-0.5 block text-[18px] font-extrabold">{pr.done ? '—' : compass(bearing)}</b></div>
+        <div className="min-w-0 px-3 py-2.5"><small className="block text-[12.5px] font-semibold text-fg-2">Distance</small><b className="mt-0.5 block text-[18px] font-bold tabular">{pr.done ? '0 km' : `${pr.km} km`}</b></div>
+        <div className="min-w-0 px-3 py-2.5"><small className="block text-[12.5px] font-semibold text-fg-2">ETA</small><b className="mt-0.5 block text-[18px] font-bold tabular">{pr.done ? 'Arrived' : `${pr.etaMin} min`}</b></div>
+        <div className="min-w-0 px-3 py-2.5"><small className="block text-[12.5px] font-semibold text-fg-2">Heading</small><b className="mt-0.5 block text-[18px] font-bold">{pr.done ? '—' : compass(bearing)}</b></div>
       </div>
       <Fill a={a} />
       <div className="text-[13px] text-fg-2">Live position <b className="ml-1 text-fg tabular">{ll.lat.toFixed(5)}, {ll.lng.toFixed(5)}</b></div>

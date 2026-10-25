@@ -20,7 +20,7 @@ export function Chip({ tone = 'gray', children, className }: { tone?: keyof type
 /** The "LIVE" pill used on maps and live cards. */
 export function LivePill({ className, label = 'LIVE' }: { className?: string; label?: string }) {
   return (
-    <span className={cn('inline-flex items-center gap-1.5 rounded-full bg-sos-soft px-2.5 py-1 text-[11.5px] font-extrabold tracking-[0.08em] text-sos', className)}>
+    <span className={cn('inline-flex items-center gap-1.5 rounded-full bg-sos-soft px-2.5 py-1 text-[11.5px] font-bold tracking-[0.08em] text-sos', className)}>
       <i className="size-1.5 animate-live rounded-full bg-sos" />
       {label}
     </span>

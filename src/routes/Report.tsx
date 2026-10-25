@@ -148,7 +148,7 @@ export default function Report() {
         <Card>
           <CardHeader title="What happens next" />
           <ol className="flex flex-col gap-4 px-5 pt-2 pb-5">
-            {steps.map(([b, p], i) => <li key={b} className="flex gap-3.5"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-[14px] font-extrabold text-primary">{i + 1}</span><div><b className="text-[15px]">{b}</b><p className="text-[14px] text-fg-2">{p}</p></div></li>)}
+            {steps.map(([b, p], i) => <li key={b} className="flex gap-3.5"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-[14px] font-bold text-primary">{i + 1}</span><div><b className="text-[15px]">{b}</b><p className="text-[14px] text-fg-2">{p}</p></div></li>)}
           </ol>
         </Card>
         <Card className="overflow-hidden">

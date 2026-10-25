@@ -37,7 +37,7 @@ export function Wordmark({ className, tone = 'light' }: { className?: string; to
     return <img src={BRAND.wordmark} alt="City Shield" draggable={false} className={cn('h-[18px] w-auto select-none dark:hidden', className)} />;
   }
   return (
-    <span className={cn('font-display font-extrabold uppercase leading-none tracking-[0.06em] text-white', className)}>
+    <span className={cn('font-display font-bold uppercase leading-none tracking-[0.06em] text-white', className)}>
       City<span className="text-[#BFD8FF]">Shield</span>
     </span>
   );
@@ -53,7 +53,7 @@ export function Logo({ tone = 'light', tagline, className, size = 'md' }: { tone
           ? <Wordmark tone="light" className={size === 'lg' ? 'text-[26px]' : 'text-[21px]'} />
           : <>
               <Wordmark tone="dark" className={size === 'lg' ? 'h-6' : 'h-[19px]'} />
-              <span className="hidden font-display text-[21px] font-extrabold uppercase tracking-[0.06em] text-fg dark:inline">CityShield</span>
+              <span className="hidden font-display text-[21px] font-bold uppercase tracking-[0.06em] text-fg dark:inline">CityShield</span>
             </>}
         {tagline && <div className={cn('mt-1.5 truncate text-[13px] font-medium', tone === 'light' ? 'text-white/75' : 'text-fg-2')}>{tagline}</div>}
       </div>

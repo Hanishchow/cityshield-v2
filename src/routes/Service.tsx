@@ -61,7 +61,7 @@ export default function Service() {
             <Card className="p-5">
               <div className="flex items-center gap-3">
                 <IconChip icon={SERVICE_ICON[k]} tone={k} />
-                <div className="min-w-0 flex-1"><div className="text-[16.5px] font-extrabold">{SERVICES[k].vehicle} · <span className="font-mono">{assignment.callSign}</span></div><Status a={assignment} className="text-[13.5px] text-fg-2" /></div>
+                <div className="min-w-0 flex-1"><div className="text-[16.5px] font-bold">{SERVICES[k].vehicle} · <span className="font-mono">{assignment.callSign}</span></div><Status a={assignment} className="text-[13.5px] text-fg-2" /></div>
                 <Button variant="outline" size="sm" onClick={() => openSheet({ kind: 'trip', svc: k, incidentId: incident.id })}>{t('details')}</Button>
               </div>
               <Fill a={assignment} className="mt-4" />
@@ -84,8 +84,8 @@ function EtaCard({ k, a, incident }: { k: ServiceKey; a: Assignment; incident: I
   return (
     <Card className="overflow-hidden">
       <button onClick={() => openSheet({ kind: 'trip', svc: k, incidentId: incident.id })} aria-label="Trip details" className="grid w-full grid-cols-[1fr_1fr_auto] items-center gap-3 p-4 text-left hover:bg-surface-2">
-        <div><div className="flex items-center gap-1.5 text-[13px] font-semibold text-fg-2"><Clock className="size-3.5" />{t('eta')}</div><Eta a={a} className="text-[26px] font-extrabold tabular" /></div>
-        <div><div className="text-[13px] font-semibold text-fg-2">{t('arriving')}</div><Arrival a={a} className="text-[26px] font-extrabold tabular" /></div>
+        <div><div className="flex items-center gap-1.5 text-[13px] font-semibold text-fg-2"><Clock className="size-3.5" />{t('eta')}</div><Eta a={a} className="text-[26px] font-bold tabular" /></div>
+        <div><div className="text-[13px] font-semibold text-fg-2">{t('arriving')}</div><Arrival a={a} className="text-[26px] font-bold tabular" /></div>
         <ChevronRight className="size-5 text-fg-3" />
       </button>
       <div className="flex border-t border-line">
@@ -105,7 +105,7 @@ function RequestCard({ k, stationName }: { k: ServiceKey; stationName?: string }
     <Card className="p-5">
       <div className="flex items-center gap-3">
         <IconChip icon={SERVICE_ICON[k]} tone={k} size="lg" />
-        <div className="min-w-0 flex-1"><div className="text-[16.5px] font-extrabold">{t('notActive')}</div><div className="text-[13.5px] text-fg-2">{stationName ? `Nearest: ${stationName}` : SERVICE_SUB[k]}</div></div>
+        <div className="min-w-0 flex-1"><div className="text-[16.5px] font-bold">{t('notActive')}</div><div className="text-[13.5px] text-fg-2">{stationName ? `Nearest: ${stationName}` : SERVICE_SUB[k]}</div></div>
       </div>
       <Button className="mt-4 w-full" size="lg" variant={k === 'civic' ? 'primary' : 'sos'} onClick={() => openSheet({ kind: 'request', svc: k })}>
         <Icon name={SERVICE_ICON[k]} />{t('requestService', { svc: SERVICES[k].vehicle.toLowerCase() })}
@@ -136,7 +136,7 @@ function Details({ k, incident }: { k: ServiceKey; incident: Incident | null }) 
       <SectionHeader title={t('officer')} />
       <Card className="flex items-center gap-3.5 p-4">
         <div className="size-16 shrink-0 overflow-hidden rounded-2xl bg-surface-3"><OfficerArt className="size-full" slice /></div>
-        <div className="min-w-0 flex-1"><div className="text-[16px] font-extrabold">{a?.officer?.name ?? 'SI Ramesh Kumar'}</div><div className="text-[13.5px] text-fg-2">Karnataka Police · <span className="font-mono">{a?.callSign ?? 'Hoysala-22'}</span></div><div className="text-[13.5px] text-fg-2">Contact: {a?.officer?.phone ?? '98867 12345'}</div></div>
+        <div className="min-w-0 flex-1"><div className="text-[16px] font-bold">{a?.officer?.name ?? 'SI Ramesh Kumar'}</div><div className="text-[13.5px] text-fg-2">Karnataka Police · <span className="font-mono">{a?.callSign ?? 'Hoysala-22'}</span></div><div className="text-[13.5px] text-fg-2">Contact: {a?.officer?.phone ?? '98867 12345'}</div></div>
       </Card>
       <div className="grid grid-cols-3 gap-2.5">
         {[{ i: <Phone />, l: t('callOfficer'), f: () => openOverlay({ kind: 'call', who: 'police' }) }, { i: <Video />, l: t('videoCall'), f: () => openOverlay({ kind: 'video' }) },
@@ -147,7 +147,7 @@ function Details({ k, incident }: { k: ServiceKey; incident: Incident | null }) 
       <SectionHeader title={t('liveFeed')} right={<DemoTag>Sample footage</DemoTag>} />
       <div className="relative aspect-[16/9] overflow-hidden rounded-card bg-navy-900">
         <StreetCamArt className="absolute inset-0" />
-        <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-md bg-black/55 px-2 py-1 text-[11.5px] font-extrabold tracking-wider text-white"><i className="size-1.5 animate-live rounded-full bg-sos" />REC</span>
+        <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-md bg-black/55 px-2 py-1 text-[11.5px] font-bold tracking-wider text-white"><i className="size-1.5 animate-live rounded-full bg-sos" />REC</span>
         <span className="absolute bottom-3 left-3 rounded-md bg-black/55 px-2 py-1 font-mono text-[12px] text-white">CAM 14 · 80 Feet Rd · {clockNow()}</span>
       </div>
       <OkCard title="Route cleared" sub="Traffic police cleared the route." />

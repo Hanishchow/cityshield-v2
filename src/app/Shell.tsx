@@ -77,7 +77,7 @@ function Topbar() {
     <header className="sticky top-0 z-30 hidden h-[72px] items-center gap-3 border-b border-line bg-surface/85 px-6 backdrop-blur-xl desk:flex">
       {canBack && <button onClick={() => nav(-1)} aria-label="Back" className="grid size-10 place-items-center rounded-xl text-fg-2 hover:bg-surface-3 hover:text-fg"><ArrowLeft className="size-5" /></button>}
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-[21px] font-extrabold tracking-[-0.015em]">{meta.title}</h1>
+        <h1 className="truncate text-[21px] font-bold tracking-[-0.015em]">{meta.title}</h1>
         {meta.sub && <p className="truncate text-[13.5px] text-fg-2">{meta.sub}</p>}
       </div>
       <button onClick={() => openSheet({ kind: 'loc' })} className="flex max-w-[260px] items-center gap-1.5 truncate rounded-xl border border-line bg-surface-2 px-3 py-2 text-[13.5px] font-semibold text-fg-2 hover:text-fg">
@@ -89,7 +89,7 @@ function Topbar() {
         {unread > 0 && <span className="absolute -top-1 -right-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-sos px-1 text-[11.5px] font-bold text-white">{unread > 9 ? '9+' : unread}</span>}
       </button>
       <button onClick={() => nav('/profile')} className="flex items-center gap-2.5 rounded-xl py-1 pr-2 pl-1 hover:bg-surface-3">
-        <i className="grid size-9 place-items-center rounded-xl bg-navy-900 text-[13.5px] font-extrabold text-white not-italic dark:bg-primary">{initials(me?.name ?? '')}</i>
+        <i className="grid size-9 place-items-center rounded-xl bg-navy-900 text-[13.5px] font-bold text-white not-italic dark:bg-primary">{initials(me?.name ?? '')}</i>
         <span className="hidden text-left wide:block"><b className="block text-[14px] leading-tight">{me?.name}</b><span className="text-[12.5px] text-fg-3">{me?.role === 'citizen' ? 'Citizen' : 'Operator'}</span></span>
       </button>
     </header>
