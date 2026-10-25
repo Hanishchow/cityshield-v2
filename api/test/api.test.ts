@@ -176,6 +176,13 @@ test('GraphQL: queries and mutation share REST auth and services', async () => {
   assert.match(anon.errors[0].message, /Sign-in required/);
 });
 
+test('the browser may PATCH and DELETE (CORS preflight allows it)', async () => {
+  const { app } = await setup();
+  const r = await app.inject({ method: 'OPTIONS', url: '/v1/me', headers: { origin: 'http://localhost:5178', 'access-control-request-method': 'PATCH' } });
+  assert.match(String(r.headers['access-control-allow-methods']), /PATCH/);
+  assert.match(String(r.headers['access-control-allow-methods']), /DELETE/);
+});
+
 test('responses are compressed and live data is never cached', async () => {
   const { app, auth } = await setup();
   const r = await app.inject({ url: '/v1/ops/incidents', headers: { ...auth, 'accept-encoding': 'br, gzip' } });

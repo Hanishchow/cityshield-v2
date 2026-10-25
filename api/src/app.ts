@@ -85,7 +85,7 @@ export async function buildApp({ repo, logger = true, now }: AppDeps) {
     else if (url.startsWith('/v1') || url.startsWith('/health') || url.startsWith('/graphql')) reply.header('cache-control', 'no-store');
     return payload;
   });
-  await app.register(cors, { origin: config.corsOrigins, credentials: true });
+  await app.register(cors, { origin: config.corsOrigins, credentials: true, methods: ['GET', 'HEAD', 'POST', 'PATCH', 'PUT', 'DELETE'] });
   /* 120/min per IP — except SOS (see the route): throttling someone panic-tapping an emergency button is the wrong failure mode. */
   await app.register(rateLimit, { max: 120, timeWindow: '1 minute' });
   await app.register(jwt, { secret: config.jwtSecret, sign: { expiresIn: '30d' } });
