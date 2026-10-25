@@ -33,7 +33,7 @@ export default function Service() {
   const dest = incident ? destPoint(incident) : me ? destPoint(me.area) : undefined;
   const hosp = k === 'ambulance' && incident?.destinationHospitalId ? stationById(incident.destinationHospitalId) : null;
   const map = (cls: string, h?: number) => (
-    <LiveMap className={cls} height={h} assignments={assignment ? [assignment] : []} dest={dest}
+    <LiveMap className={cls} height={h} assignments={assignment ? [assignment] : []} dest={dest} at={incident ?? me?.area}
       hospital={hosp ? { lat: hosp.lat, lng: hosp.lng, name: hosp.name } : null}
       locationLabel={me?.area.source === 'gps' ? 'You are here' : 'You are here (demo)'}
       aria={`${SERVICES[k].vehicle} live location`} pad={desk ? { t: 70, r: 60, b: 50, l: 60 } : undefined} live={!!assignment} />

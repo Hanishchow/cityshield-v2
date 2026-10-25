@@ -124,7 +124,7 @@ export function ComplaintDetail() {
         </Card>
         <Card className="overflow-hidden">
           <CardHeader title={t('trackMap')} right={res ? <Chip tone="green">{t('resolved')}</Chip> : c.crew ? <Chip tone="blue"><Label a={c.crew} /></Chip> : <Chip tone="amber">Awaiting assignment</Chip>} />
-          <LiveMap className="h-[360px]" assignments={c.crew && !res ? [c.crew] : []} issue={{ pt: destPoint(c, ISSUE_PT), state: res ? 'resolved' : 'open' }} live={!res} aria="Complaint location" pad={{ t: 60, r: 40, b: 40, l: 40 }} />
+          <LiveMap className="h-[360px]" assignments={c.crew && !res ? [c.crew] : []} at={c} issue={{ pt: destPoint(c, ISSUE_PT), state: res ? 'resolved' : 'open' }} live={!res} aria="Complaint location" pad={{ t: 60, r: 40, b: 40, l: 40 }} />
         </Card>
       </div>
       <div className="flex flex-col gap-5">

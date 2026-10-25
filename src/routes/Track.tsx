@@ -49,7 +49,7 @@ export default function Track() {
     </>
   );
   const map = (cls: string, h?: number) => (
-    <LiveMap className={cls} height={h} assignments={[...active, ...crews]} pill={active.length + crews.length === 1} dest={dest} aria="Your active responders" pad={{ t: 58, r: 32, b: 30, l: 32 }} />
+    <LiveMap className={cls} height={h} assignments={[...active, ...crews]} pill={active.length + crews.length === 1} dest={dest} at={incs[0] ?? me?.area} aria="Your active responders" pad={{ t: 58, r: 32, b: 30, l: 32 }} />
   );
   if (!desk) return (
     <div>

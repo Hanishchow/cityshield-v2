@@ -61,7 +61,7 @@ function LocationBody() {
   const useGps = async () => { if (await locate()) close(); };
   return (
     <div className="flex flex-col gap-4">
-      <LiveMap className="h-[200px] rounded-2xl" live={false} toggle={false} dest={destPoint(me.area)} aria="Your location" pad={{ t: 40, r: 20, b: 20, l: 20 }} />
+      <LiveMap className="h-[200px] rounded-2xl" live={false} toggle={false} dest={destPoint(me.area)} at={me.area} aria="Your location" pad={{ t: 40, r: 20, b: 20, l: 20 }} />
       <div className="flex items-start gap-3">
         <Icon name="pin" className="mt-0.5 size-5 text-primary" />
         <div>
@@ -174,7 +174,7 @@ function ServiceMapSheet({ open, onOpenChange, svc }: { open: boolean; onOpenCha
   const desk = useIsDesktop(), t = useT();
   return (
     <Sheet open={open} onOpenChange={onOpenChange} title={`${SERVICES[svc].vehicle} · ${t('liveTracking')}`} wide>
-      <LiveMap className="rounded-2xl" height={desk ? 420 : 320} assignments={assignment ? [assignment] : []} dest={incident ? destPoint(incident) : undefined} aria={`${SERVICES[svc].vehicle} live location`} />
+      <LiveMap className="rounded-2xl" height={desk ? 420 : 320} assignments={assignment ? [assignment] : []} dest={incident ? destPoint(incident) : undefined} at={incident ?? undefined} aria={`${SERVICES[svc].vehicle} live location`} />
       {assignment && <div className="mt-3.5 flex items-start gap-3"><Icon name="pin" className="mt-0.5 size-5 text-primary" /><div><Label a={assignment} className="text-[15px] font-bold" /><div className="text-[13.5px] text-fg-2">{t('arriving')} <Arrival a={assignment} /></div></div></div>}
     </Sheet>
   );
@@ -186,7 +186,7 @@ function ComplaintMapSheet({ open, onOpenChange, id }: { open: boolean; onOpenCh
   const res = c.status === 'resolved';
   return (
     <Sheet open={open} onOpenChange={onOpenChange} title={c.title} wide>
-      <LiveMap className="rounded-2xl" height={desk ? 420 : 320} assignments={c.crew && !res ? [c.crew] : []} issue={{ pt: destPoint(c, ISSUE_PT), state: res ? 'resolved' : 'open' }} live={!res} aria="Complaint location" pad={{ t: 60, r: 30, b: 30, l: 30 }} />
+      <LiveMap className="rounded-2xl" height={desk ? 420 : 320} assignments={c.crew && !res ? [c.crew] : []} at={c} issue={{ pt: destPoint(c, ISSUE_PT), state: res ? 'resolved' : 'open' }} live={!res} aria="Complaint location" pad={{ t: 60, r: 30, b: 30, l: 30 }} />
       <div className="mt-3.5 flex items-start gap-3"><Icon name="pin" className="mt-0.5 size-5 text-primary" /><div><div className="text-[15px] font-bold">{c.address}</div><div className="mt-1"><StatusChip status={c.status} /></div></div></div>
     </Sheet>
   );

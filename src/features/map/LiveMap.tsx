@@ -26,15 +26,17 @@ export interface LiveMapProps extends MapProps {
   /** ambulance destination hospital, drawn as the second leg on the street map */
   hospital?: { lat: number; lng: number; name: string } | null;
   locationLabel?: string;
+  /** real coordinates of the pointer / complaint (street map only; the schematic and 3D use `dest`) */
+  at?: { lat: number; lng: number } | null;
 }
 
-export function LiveMap({ toggle = true, hospital, locationLabel, ...p }: LiveMapProps) {
+export function LiveMap({ toggle = true, hospital, locationLabel, at, ...p }: LiveMapProps) {
   const { use3D, available } = useMap3D();
   const set = useUI((s) => s.set);
   const schematic = <CityMap2D {...p} className="absolute inset-0" height={undefined} />;
   const street = (
     <Fallback fallback={schematic}>
-      <StreetMap className="absolute inset-0" assignments={p.assignments ?? []} dest={p.dest ?? undefined} issue={p.issue} hospital={hospital}
+      <StreetMap className="absolute inset-0" assignments={p.assignments ?? []} dest={p.dest ?? undefined} at={at} issue={p.issue} hospital={hospital}
         locationLabel={locationLabel} aria={p.aria} fallback={schematic} />
     </Fallback>
   );

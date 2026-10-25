@@ -91,6 +91,8 @@ export interface StreetMapProps {
   assignments: Assignment[];
   /** where help is going (schematic point, converted to lat/lng) */
   dest?: SPoint;
+  /** the real coordinates of the same place; preferred over `dest`, which snaps to the small schematic grid */
+  at?: { lat: number; lng: number } | null;
   issue?: { pt: SPoint; state: 'open' | 'resolved' } | null;
   hospital?: { lat: number; lng: number; name: string } | null;
   locationLabel?: string;
@@ -100,7 +102,7 @@ export interface StreetMapProps {
   fallback?: ReactNode;
 }
 
-export function StreetMap({ assignments, dest, issue, hospital, locationLabel, className, aria, fallback = null }: StreetMapProps) {
+export function StreetMap({ assignments, dest, at, issue, hospital, locationLabel, className, aria, fallback = null }: StreetMapProps) {
   const box = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layer = useRef<L.LayerGroup | null>(null);
@@ -113,7 +115,7 @@ export function StreetMap({ assignments, dest, issue, hospital, locationLabel, c
   const you = useLive((s) => s.fix);
   const youDot = useRef<{ dot: L.Marker; ring: L.Circle } | null>(null);
 
-  const destLL: LL = issue ? sToLL(issue.pt) : sToLL(dest ?? [650, 350]);
+  const destLL: LL = at ? [at.lat, at.lng] : issue ? sToLL(issue.pt) : sToLL(dest ?? [650, 350]);
   const key = assignments.map((a) => `${a.unitId}:${a.dispatchedAt}`).join('|');
 
   /* create the map once */

@@ -137,7 +137,7 @@ function HomeDesktop() {
         <Card className="flex min-h-[460px] flex-col overflow-hidden">
           {incs === undefined ? <Skeleton className="m-4 h-[400px]" /> : a && amb ? (
             <>
-              <LiveMap className="h-[300px]" assignments={[a]} dest={destPoint(amb)} aria="Ambulance live location" pad={{ t: 66, r: 20, b: 24, l: 20 }} />
+              <LiveMap className="h-[300px]" assignments={[a]} dest={destPoint(amb)} at={amb} aria="Ambulance live location" pad={{ t: 66, r: 20, b: 24, l: 20 }} />
               <div className="flex flex-1 flex-col gap-3.5 p-5">
                 <div className="flex items-center gap-3">
                   <IconChip icon="ambulance" tone="ambulance" />
