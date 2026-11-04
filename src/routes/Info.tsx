@@ -76,6 +76,7 @@ export function About() {
       </Card>
       <Notice><b>Prototype.</b> Responder positions, officer details, camera feed and command-centre figures are simulated for demonstration. Integrations with agency systems are proposed, not live.</Notice>
       <p className="text-center text-[13px] text-fg-3"><Icon name="shieldCheck" className="mr-1 inline size-3.5" />Version 1.0 · October 2026</p>
+      <p className="text-center text-[12.5px] text-fg-3">Home photo of Vidhana Soudha by <a className="underline" href="https://commons.wikimedia.org/wiki/File:Vidhana_Soudha,_front_(01).jpg" target="_blank" rel="noopener noreferrer">Moheen Reeyad</a>, <a className="underline" href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>. Map data © OpenStreetMap contributors.</p>
     </Page>
   );
 }

@@ -1,4 +1,3 @@
-import { lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Bell, ChevronRight, Clock, MapPin } from 'lucide-react';
@@ -14,26 +13,22 @@ import { Chip, LivePill } from '@/components/ui/chip.tsx';
 import { ComplaintRow, IconChip, NotificationRow, Row } from '@/components/common.tsx';
 import { Icon, SERVICE_ICON } from '@/components/icons.tsx';
 import { Logo, ShieldMark } from '@/components/brand/Logo.tsx';
-import { HeroArt2D } from '@/components/art/Art.tsx';
 import { Skeleton } from '@/components/ui/controls.tsx';
 import { LiveMap } from '@/features/map/LiveMap.tsx';
 import { Arrival, Eta, Fill, Status } from '@/features/sim/live.tsx';
-import { useDecor3D } from '@/features/three/support.ts';
 import { useIsDesktop } from '@/lib/useMedia.ts';
 import { firstName } from '@/lib/utils.ts';
 import { greetingKey, useT, type TKey } from '@/i18n/index.ts';
 import { openNotification } from './Notifications.tsx';
 import { ThemeToggle } from '@/components/ThemeToggle.tsx';
 
-const HeroSkyline = lazy(() => import('@/features/three/HeroSkyline.tsx'));
-
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const rise = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.2, 0.7, 0.2, 1] as const } } };
 
-function Hero3D({ fallback, compact }: { fallback: React.ReactNode; compact?: boolean }) {
-  const deco = useDecor3D();
-  if (!deco) return <>{fallback}</>;
-  return <Suspense fallback={fallback}><HeroSkyline compact={compact} /></Suspense>;
+/** Vidhana Soudha, Bengaluru. Photo: Moheen Reeyad, CC BY-SA 4.0 (credited on the About page). */
+function HeroPhoto() {
+  return <img src={`${import.meta.env.BASE_URL}brand/vidhana-soudha.jpg`} alt="Vidhana Soudha, Bengaluru" draggable={false}
+    className="absolute inset-0 size-full object-cover object-[50%_35%]" />;
 }
 
 export default function Home() {
@@ -48,7 +43,7 @@ function HomeMobile() {
   return (
     <div className="min-h-full bg-navy-900">
       <section className="relative h-[400px] overflow-hidden text-white">
-        <Hero3D compact fallback={<HeroArt2D className="absolute inset-0" />} />
+        <HeroPhoto />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(24_48_110/0.6)_0%,rgb(24_48_110/0)_38%,rgb(24_48_110/0.2)_68%,var(--navy-900)_100%)]" />
         <div className="absolute top-4 left-4"><Logo tagline={t('tagline')} /></div>
         <div className="absolute top-5 right-4 flex items-center gap-2">
@@ -108,7 +103,7 @@ function HomeDesktop() {
   return (
     <motion.div variants={stagger} initial="hidden" animate="show" className="mx-auto flex max-w-[1320px] flex-col gap-5 p-6">
       <motion.section variants={rise} className="relative h-[380px] overflow-hidden rounded-2xl bg-navy-900 text-white shadow-float">
-        <div className="absolute inset-y-0 right-0 w-[70%]"><Hero3D fallback={<HeroArt2D className="absolute inset-0" slice />} /></div>
+        <div className="absolute inset-y-0 right-0 w-[70%]"><HeroPhoto /></div>
         <div className="absolute inset-0 bg-[linear-gradient(90deg,var(--navy-900)_30%,rgb(24_48_110/0.65)_46%,rgb(24_48_110/0)_66%)]" />
         <div className="pointer-events-none absolute top-1/2 right-10 hidden -translate-y-1/2 wide:block"><ShieldMark className="h-[230px] animate-[float_6s_ease-in-out_infinite] drop-shadow-[0_24px_40px_rgb(5_15_45/0.55)]" title="City Shield" /></div>
         <div className="relative flex h-full max-w-[470px] flex-col justify-center px-9">
