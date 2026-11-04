@@ -71,11 +71,14 @@ export function StatusChip({ status }: { status: ComplaintStatus }) {
   return <Chip tone="amber">Submitted</Chip>;
 }
 
+/** Which agency's logo stands for each complaint category (the agency it is routed to). */
+const COMPLAINT_AGENCY: Record<string, string> = { pothole: 'civic', water: 'civic', light: 'civic', civic: 'civic', signal: 'police' };
+
 export function ComplaintRow({ c, onClick, selected }: { c: Complaint; onClick: () => void; selected?: boolean }) {
   const k = categoryOf(c.category);
   return (
     <Row onClick={onClick} selected={selected} chevron>
-      <IconChip icon={k.icon} tone={k.tone} />
+      {COMPLAINT_AGENCY[c.category] ? <ServiceBadge k={COMPLAINT_AGENCY[c.category]} size="md" /> : <IconChip icon={k.icon} tone={k.tone} />}
       <div className="min-w-0 flex-1">
         <div className="truncate text-[15px] font-bold">{c.title}</div>
         <div className="mt-1 flex flex-wrap items-center gap-2">
