@@ -10,7 +10,7 @@ import { useComplaints, useIncidents, useMarkRead, useMe, useNotifications, useU
 import { Card, CardHeader } from '@/components/ui/card.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Chip, LivePill } from '@/components/ui/chip.tsx';
-import { ComplaintRow, IconChip, NotificationRow, Row } from '@/components/common.tsx';
+import { ComplaintRow, IconChip, NotificationRow, Row, ServiceBadge } from '@/components/common.tsx';
 import { Icon, SERVICE_ICON } from '@/components/icons.tsx';
 import { Logo, ShieldMark } from '@/components/brand/Logo.tsx';
 import { Skeleton } from '@/components/ui/controls.tsx';
@@ -69,7 +69,7 @@ function HomeMobile() {
           <Card className="grid grid-cols-4 gap-1 p-3">
             {SERVICE_KEYS.map((k) => (
               <button key={k} onClick={() => nav(`/service/${k}`)} className="flex flex-col items-center gap-2 rounded-2xl py-2 text-[13px] font-bold hover:bg-surface-2">
-                <IconChip icon={SERVICE_ICON[k]} tone={k} size="lg" />{t(k as TKey)}
+                <ServiceBadge k={k} />{t(k as TKey)}
               </button>
             ))}
           </Card>
@@ -121,7 +121,7 @@ function HomeDesktop() {
       <motion.div variants={rise} className="grid grid-cols-4 gap-4">
         {SERVICE_KEYS.map((k: ServiceKey) => (
           <button key={k} onClick={() => nav(`/service/${k}`)} className="group flex flex-col items-start gap-3 rounded-card border border-line bg-surface p-5 text-left shadow-card transition hover:-translate-y-0.5 hover:shadow-float">
-            <IconChip icon={SERVICE_ICON[k]} tone={k} size="lg" />
+            <ServiceBadge k={k} />
             <div><div className="text-[16px] font-bold">{t(`svc_${k}` as TKey)}</div><div className="mt-0.5 text-[13.5px] text-fg-2">{SERVICE_SUB[k]}</div></div>
             <span className="mt-auto inline-flex items-center gap-1 text-[13.5px] font-bold text-primary">{t('liveTracking')}<ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" /></span>
           </button>

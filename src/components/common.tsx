@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronRight, Info } from 'lucide-react';
 import type { Complaint, ComplaintStatus, Notification, TimelineItem } from '@shared/contract.ts';
 import { categoryOf } from '@shared/catalog.ts';
-import { Icon } from './icons.tsx';
+import { Icon, SERVICE_ICON } from './icons.tsx';
 import { Chip } from './ui/chip.tsx';
 import { toneClass } from './tone.ts';
 import { ThemeToggle } from './ThemeToggle.tsx';
@@ -17,6 +17,18 @@ import { useT } from '@/i18n/index.ts';
 export function IconChip({ icon, tone, round, size = 'md', className }: { icon: string; tone: string; round?: boolean; size?: 'sm' | 'md' | 'lg'; className?: string }) {
   const s = size === 'sm' ? 'size-8 [&_svg]:size-4' : size === 'lg' ? 'size-12 [&_svg]:size-6' : 'size-10 [&_svg]:size-5';
   return <span className={cn('grid shrink-0 place-items-center', round ? 'rounded-full' : 'rounded-xl', s, toneClass(tone), className)}><Icon name={icon} /></span>;
+}
+
+/** Service badge: the agency's own crest for police and fire, the standard icon chip for the rest. */
+const AGENCY_LOGO: Record<string, string> = { police: 'Karnataka State Police', fire: 'Karnataka Fire and Emergency Services' };
+export function ServiceBadge({ k, size = 'lg' }: { k: string; size?: 'sm' | 'md' | 'lg' }) {
+  if (!AGENCY_LOGO[k]) return <IconChip icon={SERVICE_ICON[k]} tone={k} size={size} />;
+  const s = size === 'sm' ? 'size-8' : size === 'md' ? 'size-10' : 'size-12';
+  return (
+    <span className={cn('grid shrink-0 place-items-center rounded-xl border border-line bg-white p-1', s)}>
+      <img src={`${import.meta.env.BASE_URL}brand/agency/${k}.png`} alt={AGENCY_LOGO[k]} draggable={false} className="size-full object-contain" />
+    </span>
+  );
 }
 
 export function Row({ children, onClick, selected, className, as = 'button', unread, chevron }: {
