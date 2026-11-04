@@ -19,8 +19,11 @@ export function IconChip({ icon, tone, round, size = 'md', className }: { icon: 
   return <span className={cn('grid shrink-0 place-items-center', round ? 'rounded-full' : 'rounded-xl', s, toneClass(tone), className)}><Icon name={icon} /></span>;
 }
 
-/** Service badge: the agency's own crest for police and fire, the standard icon chip for the rest. */
-const AGENCY_LOGO: Record<string, string> = { police: 'Karnataka State Police', fire: 'Karnataka Fire and Emergency Services' };
+/** Service badge: the agency's own crest where we have one, the standard icon chip otherwise. */
+const AGENCY_LOGO: Record<string, string> = {
+  police: 'Karnataka State Police', fire: 'Karnataka Fire and Emergency Services',
+  ambulance: 'Karnataka Department of Health and Family Welfare', civic: 'Bruhat Bengaluru Mahanagara Palike',
+};
 export function ServiceBadge({ k, size = 'lg' }: { k: string; size?: 'sm' | 'md' | 'lg' }) {
   if (!AGENCY_LOGO[k]) return <IconChip icon={SERVICE_ICON[k]} tone={k} size={size} />;
   const s = size === 'sm' ? 'size-8' : size === 'md' ? 'size-10' : 'size-12';
